@@ -1,21 +1,19 @@
-import React, { Component } from 'react';
-import { Route } from 'react-router-dom'
-import Dashboard from './components/Dashboard'
-import DailyWorkLogs from './components/DailyWorkLogs'
-import Users from './components/Users'
-import './App.css';
+import React from 'react';
+import { Router } from "react-router-dom";
+import history from "./services/history";
+import Routes from "./routes";
+import GlobalStyles from "./styles/global";
+import KPIStoreProvider from './contexts/KPIStore.js';
 
-
-class App extends Component {
-  render() {
-    return (
-      <div className="App">
-        <Route path="/" component={Dashboard} exact={true} />
-        <Route path="/daily_work_logs" component={DailyWorkLogs} />
-        <Route path="/users" component={Users} />
-      </div>
-    );
-  }
+function App() {
+  return (
+    <KPIStoreProvider>
+      <Router history={history}>
+        <Routes />
+        <GlobalStyles />
+      </Router>
+    </KPIStoreProvider>
+  );
 }
 
 export default App;
