@@ -14,12 +14,19 @@ const getDate = function(day_later, currentDate) {
     currentDate = new Date();
   }
   var date = new Date(currentDate);
-  date.setDate(date.getDate() - day_later);
+  date.setDate(date.getDate() + day_later);
   var year  = date.getFullYear();
   var month = date.getMonth() + 1;
   var day   = ("0" + date.getDate()).slice(-2);
   return String(year) + "-" + String(month) + "-" + String(day);
 };
+
+function getMonday(d) {
+  d = new Date(d);
+  var day = d.getDay(),
+      diff = d.getDate() - day + (day === 0 ? -6:1);
+  return new Date(d.setDate(diff));
+}
 
 const renderDateArray = function(currentDate) {
   if( currentDate === undefined || !currentDate ) {
@@ -29,9 +36,7 @@ const renderDateArray = function(currentDate) {
   for (let i = 0; i < (DAYS_OF_WEEK); i++) {
     dateArray.push(getDate(i, currentDate))
   }
-  dateArray.sort(function(a,b) {
-    return (a.date > b.date ? 1 : -1);
-  });
+  dateArray.sort((a,b) => a.date > b.date)
   return dateArray;
 }
 
@@ -48,7 +53,7 @@ const fetchLogWork = function(jiraID, date) {
 }
 
 export default function DailyWorkLogs() {
-  const [currentDay, setCurrentDay] = useState(new Date());
+  const [currentDay, setCurrentDay] = useState(getMonday(new Date()));
   const dateArray = renderDateArray(currentDay);
   const [targetDateRange, setTargetDateRange] = useState(dateArray);
   const { workLogs: [workLogs, setWorkLogs],
@@ -87,24 +92,27 @@ export default function DailyWorkLogs() {
     return <Loading width={400} />
   }
 
-  console.log(workLogs)
-
   return (
     <>
       <Paper style={{marginBottom: '1rem'}}>
         <DailyWorkLogsTable targetDateRange={targetDateRange} users={users} workLogs={workLogs} />
       </Paper>
       <Button variant="contained" onClick={ () => {
-        let someDate = new Date(currentDay);
-        someDate.setDate(someDate.getDate() - DAYS_OF_WEEK);
-        setCurrentDay(someDate)
-        setTargetDateRange(renderDateArray(someDate))
+        let newDate = new Date(currentDay);
+        newDate.setDate(newDate.getDate() - DAYS_OF_WEEK);
+        setCurrentDay(newDate)
+        setTargetDateRange(renderDateArray(newDate))
       }}>Prev</Button>
       <Button variant="contained" onClick={ () => {
-        let someDate = new Date(currentDay);
-        someDate.setDate(someDate.getDate() + DAYS_OF_WEEK);
-        setCurrentDay(someDate)
-        setTargetDateRange(renderDateArray(someDate))
+        let newDate = new Date()
+        setCurrentDay(newDate)
+        setTargetDateRange(renderDateArray(newDate))
+      }}>Today</Button>
+      <Button variant="contained" onClick={ () => {
+        let newDate = new Date(currentDay);
+        newDate.setDate(newDate.getDate() + DAYS_OF_WEEK);
+        setCurrentDay(newDate)
+        setTargetDateRange(renderDateArray(newDate))
       }}>Next</Button>
     </>
   );
