@@ -4,8 +4,8 @@ import React, { useState, createContext } from 'react';
 export const KPIStoreContext = createContext(null)
 
 export default ({ children }) => {
-  const [workLogs, setWorkLogs] = useState([])
-  const [users, setUsers] = useState([])
+  const [workLogs, setWorkLogs] = useState(JSON.parse(localStorage.getItem('workLogs')) || [])
+  const [users, setUsers] = useState(JSON.parse(localStorage.getItem('users')) || [])
 
   const store = {
     workLogs: [workLogs, setWorkLogs],
