@@ -33,5 +33,9 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
+  },
+  "devDependencies": {
+    "@material-ui/lab": "^4.0.0-alpha.33",
+    "styled-components": "^4.4.1"
   }
 }
