@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from "react-router-dom";
 import {Table, TableBody, TableCell, TableHead, TableRow} from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 import Paper from '@material-ui/core/Paper';
@@ -37,7 +38,9 @@ export default function DailyWorkLogsTable({...props}) {
         <TableBody>
           {users.map((user, idx) =>
             <TableRow hover tabIndex={-1} key={idx}>
-              <TableCell>{user.name}</TableCell>
+              <TableCell>
+                <Typography variant="subtitle1" component={Link} to={`/user/${user.id}`}>{user.name}</Typography>
+              </TableCell>
               {targetDateRange.map((date, dateIdx) => {
                 let logtime = workLogs.filter((item) => item.date === date && item.jira_id === user.jira_id );
                 let isToday = (new Date(date)).toDateString() === (new Date()).toDateString() ? classes.is_today : '';

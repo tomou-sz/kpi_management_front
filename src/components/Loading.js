@@ -15,8 +15,8 @@ export default function Menu({...props}) {
     <Wrapper>
       <Box {...props} >
         <Skeleton variant="rect" width="100%" height={200} style={{marginBottom: '0.5rem'}}/>
-        <Skeleton variant="rect" height={20} style={{marginBottom: '0.5rem'}} />
-        <Skeleton variant="rect" height={20} width="60%" />
+        <Skeleton variant="rect" height={15} style={{marginBottom: '0.5rem'}} />
+        <Skeleton variant="rect" height={15} width="60%" />
       </Box>
     </Wrapper>
   );

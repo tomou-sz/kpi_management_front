@@ -1,4 +1,5 @@
 import React, { useEffect, useContext } from 'react';
+import { Link } from "react-router-dom";
 import Table from '@material-ui/core/Table';
 import TableBody from '@material-ui/core/TableBody';
 import TableCell from '@material-ui/core/TableCell';
@@ -7,6 +8,7 @@ import TableRow from '@material-ui/core/TableRow';
 import Paper from '@material-ui/core/Paper';
 import RefreshIcon from '@material-ui/icons/Refresh';
 import Button from '@material-ui/core/Button';
+import Typography from '@material-ui/core/Typography';
 import Tooltip from '@material-ui/core/Tooltip';
 import Loading from '../../components/Loading';
 import { KPIStoreContext } from '../../contexts/KPIStore.js';
@@ -31,7 +33,7 @@ export default function Users() {
   }, [users, setUsers]);
 
   if(users.length === 0) {
-    return <Loading width={400} />;
+    return <Loading width={'100%'} />;
   }
 
   return(
@@ -53,7 +55,9 @@ export default function Users() {
             {users.map(row => (
               <TableRow hover tabIndex={-1} key={row.id}>
                 <TableCell>{row.id}</TableCell>
-                <TableCell>{row.name}</TableCell>
+                <TableCell>
+                  <Typography variant="subtitle1" component={Link} to={`/user/${row.id}`}>{row.name}</Typography>
+                </TableCell>
                 <TableCell>{row.jira_id}</TableCell>
                 <TableCell>{row.position}</TableCell>
               </TableRow>
