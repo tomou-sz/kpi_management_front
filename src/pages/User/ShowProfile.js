@@ -51,5 +51,5 @@ ShowProfile.propTypes = {
   name: PropTypes.string.isRequired,
   position: PropTypes.string,
   sprintID: PropTypes.number.isRequired,
-  jira_id: PropTypes.number.isRequired,
+  jira_id: PropTypes.string.isRequired,
 };

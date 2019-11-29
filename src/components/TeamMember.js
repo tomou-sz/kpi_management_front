@@ -11,7 +11,7 @@ export default function TeamMember({...props}) {
 }
 
 TeamMember.propTypes = {
-  jira_id: PropTypes.number.isRequired,
+  jira_id: PropTypes.string.isRequired,
 };
 
 export function getTeam(jira_id) {

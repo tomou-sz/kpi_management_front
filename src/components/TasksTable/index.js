@@ -6,6 +6,7 @@ import Skeleton from '@material-ui/lab/Skeleton';
 import TimeFormat from '../../utils/TimeFormat';
 import { makeStyles } from '@material-ui/core/styles';
 import StableSort, {getSorting} from '../../utils/StableSort';
+import DefaultConfig from '../../utils/DefaultConfig';
 
 const useStyles = makeStyles({
   tableResponsive: {
@@ -27,15 +28,13 @@ const headerTitle = [
   {title: 'Remaining Estimate', key: 'remaining_estimate_seconds'}
 ];
 
-const defaultRowsPerPage = [7, 50, 100, 500];
-
 export default function TaskTable({...props}) {
   const classes = useStyles();
   const {data, progressing} = props;
   const [order, setOrder] = useState('asc');
   const [orderBy, setOrderBy] = useState('key');
   const [page, setPage] = useState(0);
-  const [rowsPerPage, setRowsPerPage] = useState(defaultRowsPerPage[0]);
+  const [rowsPerPage, setRowsPerPage] = useState(DefaultConfig.DEFAULT_ROWS_PER_PAGE[0]);
 
   const BodyData = function() {
     if(data === undefined || progressing) {
@@ -121,7 +120,7 @@ export default function TaskTable({...props}) {
         </TableBody>
       </Table>
       <TablePagination
-        rowsPerPageOptions={defaultRowsPerPage}
+        rowsPerPageOptions={DefaultConfig.DEFAULT_ROWS_PER_PAGE}
         component="div"
         count={data ? data.length : 0}
         rowsPerPage={rowsPerPage}

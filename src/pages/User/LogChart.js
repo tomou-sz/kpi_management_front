@@ -85,5 +85,5 @@ const getChartDates = () => {
 }
 
 LogChart.propTypes = {
-  jira_id: PropTypes.string
+  jira_id: PropTypes.string.isRequired
 };

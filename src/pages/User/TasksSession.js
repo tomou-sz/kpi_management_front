@@ -15,14 +15,22 @@ export default function TasksSession({...props}) {
     GetTasks(userid, sprintID).then((results) => {
       const keyList = results.data.sprint_tickets.map((item) => item.key);
       const ticketsMap = results.data.sprint_tickets.map((item) => {
+        // TODO BE return sprint_id. since 1 ticket might have more than 1 sprint_id
+        // item.sprint_id = '1,2,3'
         item.sprint_id = sprintID;
         item.user_id = userid;
         return item;
       });
-      const lastTickets = tickets.filter((item) => keyList.indexOf(item.key) );
+      const lastTickets = tickets.filter((item) => keyList.indexOf(item.key) === -1);
       setTickets([...lastTickets, ...ticketsMap])
       setLoading(false)
     })
+    .catch((error) => {
+      // TODO: implement Snackbar component in the future
+    })
+    .finally(() => {
+      setLoading(false)
+    });
   }
 
   useEffect(() => {
