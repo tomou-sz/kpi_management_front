@@ -1,20 +1,23 @@
 import React, { useState } from 'react';
-import {Table, TableBody, TableCell, TableHead, TableRow, TableSortLabel} from '@material-ui/core';
+import {Table, TableBody, TableCell, TableHead, TableRow, TableSortLabel, TablePagination} from '@material-ui/core';
 import PropTypes from 'prop-types';
 import Typography from '@material-ui/core/Typography';
 import Skeleton from '@material-ui/lab/Skeleton';
 import TimeFormat from '../../utils/TimeFormat';
 import { makeStyles } from '@material-ui/core/styles';
+import StableSort, {getSorting} from '../../utils/StableSort';
 
 const useStyles = makeStyles({
   tableResponsive: {
     'overflow-x': 'auto',
     paddingBottom: '.5rem'
+  },
+  dark_bg: {
+    background: '#fcfcfc'
   }
 });
 
 const headerTitle = [
-  {title: '#', key: null},
   {title: 'Key', key: 'key'},
   {title: 'Type', key: 'issuetype'},
   {title: 'Summary', key: 'summary'},
@@ -24,13 +27,18 @@ const headerTitle = [
   {title: 'Remaining Estimate', key: 'remaining_estimate_seconds'}
 ];
 
+const defaultRowsPerPage = [7, 50, 100, 500];
+
 export default function TaskTable({...props}) {
   const classes = useStyles();
-  const {data} = props;
+  const {data, progressing} = props;
   const [order, setOrder] = useState('asc');
   const [orderBy, setOrderBy] = useState('key');
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(defaultRowsPerPage[0]);
+
   const BodyData = function() {
-    if(data === undefined || data.length === 0) {
+    if(data === undefined || progressing) {
       return (
         <TableRow>
           <TableCell colSpan={headerTitle.length}>
@@ -39,10 +47,17 @@ export default function TaskTable({...props}) {
           </TableCell>
         </TableRow>
       )
+    } else if (data.length === 0) {
+      return (
+        <TableRow>
+          <TableCell colSpan={headerTitle.length}>
+            <Typography variant="subtitle1" component='p'>No Data</Typography>
+          </TableCell>
+        </TableRow>
+      )
     } else {
-      return stableSort(data, getSorting(order, orderBy)).map((row, idx) => {
-        return (<TableRow key={idx} >
-          <TableCell>{idx}</TableCell>
+      return StableSort(data, getSorting(order, orderBy)).slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row, idx) => {
+        return (<TableRow key={idx} className={(row.time_spent_seconds > row.original_estimate_seconds) ? classes.dark_bg : ''}>
           <TableCell>
             <Typography
               variant="subtitle1"
@@ -70,6 +85,15 @@ export default function TaskTable({...props}) {
     setOrderBy(property);
   }
 
+  const handleChangePage = (event, newPage) => {
+    setPage(newPage);
+  };
+
+  const handleChangeRowsPerPage = event => {
+    setRowsPerPage(+event.target.value);
+    setPage(0);
+  };
+
   return(
     <div className={classes.tableResponsive}>
       <Table stickyHeader >
@@ -96,34 +120,20 @@ export default function TaskTable({...props}) {
           <BodyData/>
         </TableBody>
       </Table>
+      <TablePagination
+        rowsPerPageOptions={defaultRowsPerPage}
+        component="div"
+        count={data ? data.length : 0}
+        rowsPerPage={rowsPerPage}
+        page={page}
+        onChangePage={handleChangePage}
+        onChangeRowsPerPage={handleChangeRowsPerPage}
+      />
     </div>
   );
 }
 
 TaskTable.propTypes = {
-  data: PropTypes.array
+  data: PropTypes.array.isRequired,
+  progressing: PropTypes.bool
 };
-
-function stableSort(array, cmp) {
-  const stabilizedThis = array.map((el, index) => [el, index]);
-  stabilizedThis.sort((a, b) => {
-    const order = cmp(a[0], b[0]);
-    if (order !== 0) return order;
-    return a[1] - b[1];
-  });
-  return stabilizedThis.map(el => el[0]);
-}
-
-function getSorting(order, orderBy) {
-  return order === 'desc' ? (a, b) => desc(a, b, orderBy) : (a, b) => -desc(a, b, orderBy);
-}
-
-function desc(a, b, orderBy) {
-  if (b[orderBy] < a[orderBy]) {
-    return -1;
-  }
-  if (b[orderBy] > a[orderBy]) {
-    return 1;
-  }
-  return 0;
-}

@@ -2,13 +2,15 @@ import React, { useContext } from 'react';
 import PropTypes from 'prop-types';
 import {Card, CardHeader, CardContent} from '@material-ui/core';
 import Typography from '@material-ui/core/Typography';
+import Divider from '@material-ui/core/Divider';
 import Avatar from '@material-ui/core/Avatar';
 import Loading from '../../components/Loading';
 import { KPIStoreContext } from '../../contexts/KPIStore';
 import TimeFormat from '../../utils/TimeFormat';
+import {getTeam} from '../../components/TeamMember';
 
 export default function ShowProfile({...props}) {
-  const {id, name, position, sprintID} = props;
+  const {id, name, position, sprintID, jira_id} = props;
   const { tickets: [tickets] } = useContext(KPIStoreContext);
   const userTickets = tickets.filter((item) => item.user_id === id && item.sprint_id === sprintID);
   const TotalOriginalEstimate = userTickets.map((item) => item.original_estimate_seconds).reduce((accumulator, currentValue) => {
@@ -31,12 +33,13 @@ export default function ShowProfile({...props}) {
           </Avatar>
         }
         title={name}
-        subheader={position}
+        subheader={`${getTeam(jira_id)} - ${position}`}
       />
       <CardContent>
-        <Typography variant="subtitle1" component="p" color="textSecondary">Productivity: {`${parseInt((TotalOriginalEstimate/TimeSpent) * 100, 10)}%`}</Typography>
-        <Typography variant="body2" component="p" color="textSecondary">Original Estimate: {TimeFormat(TotalOriginalEstimate)}</Typography>
-        <Typography variant="body2" component="p" color="textSecondary">Time Spent: {TimeFormat(TimeSpent)}</Typography>
+        <Typography variant="subtitle1" component="p" color="textSecondary">Productivity: {`${parseInt((TotalOriginalEstimate/TimeSpent) * 100, 10) || '-'}%`}</Typography>
+        <Divider variant="fullWidth" style={{marginBottom: '.5rem', marginTop: '.5rem'}} />
+        <Typography variant="body2" component="p" color="textSecondary">Original Estimate: {TimeFormat(TotalOriginalEstimate) || '-'}</Typography>
+        <Typography variant="body2" component="p" color="textSecondary">Time Spent: {TimeFormat(TimeSpent) || '-'}</Typography>
         <Typography variant="body2" component="p" color="textSecondary">Total Tickets: {userTickets.length}</Typography>
       </CardContent>
     </Card>
@@ -44,8 +47,9 @@ export default function ShowProfile({...props}) {
 }
 
 ShowProfile.propTypes = {
-  id: PropTypes.number,
-  name: PropTypes.string,
+  id: PropTypes.number.isRequired,
+  name: PropTypes.string.isRequired,
   position: PropTypes.string,
-  sprintID: PropTypes.number
+  sprintID: PropTypes.number.isRequired,
+  jira_id: PropTypes.number.isRequired,
 };

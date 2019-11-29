@@ -1,4 +1,8 @@
 export default (second) => {
+  if(second === undefined || !second ) {
+    return '0 mins'
+  }
+
   const sec_num = parseInt(second, 10);
   let day = Math.floor(sec_num / 28800);
   let hours   = Math.floor((sec_num - (day * 28800)) / 3600);

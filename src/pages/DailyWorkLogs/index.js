@@ -3,6 +3,7 @@ import Paper from '@material-ui/core/Paper';
 import Button from '@material-ui/core/Button';
 import Tooltip from '@material-ui/core/Tooltip';
 import RefreshIcon from '@material-ui/icons/Refresh';
+import Typography from '@material-ui/core/Typography';
 import DailyWorkLogsTable from '../../components/DailyWorkLogsTable';
 import Loading from '../../components/Loading';
 import { KPIStoreContext } from '../../contexts/KPIStore';
@@ -75,6 +76,7 @@ export default function DailyWorkLogs() {
         <Button variant="contained" onClick={refreshData}><RefreshIcon/></Button>
       </Tooltip>
       <Paper style={{marginBottom: '1rem'}}>
+        <Typography variant="h5" component="h5">{ new Date(targetDateRange[0]).toDateString() }</Typography>
         <DailyWorkLogsTable targetDateRange={targetDateRange} users={users} workLogs={workLogs || []} />
       </Paper>
       <Button variant="contained" onClick={ () => {

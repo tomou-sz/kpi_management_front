@@ -1,10 +1,6 @@
-import React, { useEffect, useContext } from 'react';
+import React, { useEffect, useContext, useState } from 'react';
 import { Link } from "react-router-dom";
-import Table from '@material-ui/core/Table';
-import TableBody from '@material-ui/core/TableBody';
-import TableCell from '@material-ui/core/TableCell';
-import TableHead from '@material-ui/core/TableHead';
-import TableRow from '@material-ui/core/TableRow';
+import {Table, TableBody, TableCell, TableHead, TableRow, TableSortLabel} from '@material-ui/core';
 import Paper from '@material-ui/core/Paper';
 import RefreshIcon from '@material-ui/icons/Refresh';
 import Button from '@material-ui/core/Button';
@@ -13,9 +9,21 @@ import Tooltip from '@material-ui/core/Tooltip';
 import Loading from '../../components/Loading';
 import { KPIStoreContext } from '../../contexts/KPIStore.js';
 import GetUser from '../../utils/GetUser.js';
+import StableSort, {getSorting} from '../../utils/StableSort';
+import TeamMember from '../../components/TeamMember';
+
+const headerTitle = [
+  {title: '#', key: null},
+  {title: 'Name', key: 'name'},
+  {title: 'Jira ID', key: 'jira_id'},
+  {title: 'Position', key: 'position'},
+  {title: 'Team Member', key: null}
+];
 
 export default function Users() {
   const { users: [users, setUsers] } = useContext(KPIStoreContext);
+  const [order, setOrder] = useState('asc');
+  const [orderBy, setOrderBy] = useState('id');
   const refreshData = () => {
     setUsers([]);
   }
@@ -36,6 +44,12 @@ export default function Users() {
     return <Loading width={'100%'} />;
   }
 
+  const createSortHandler = (property) => (event)  => {
+    const isDesc = orderBy === property && order === 'desc';
+    setOrder(isDesc ? 'asc' : 'desc');
+    setOrderBy(property);
+  }
+
   return(
     <>
       <Tooltip title="Refresh Data" aria-label="Refresh Data">
@@ -45,14 +59,25 @@ export default function Users() {
         <Table stickyHeader >
           <TableHead>
             <TableRow>
-              <TableCell>#</TableCell>
-              <TableCell>Name</TableCell>
-              <TableCell>Jira ID</TableCell>
-              <TableCell>Position</TableCell>
+              {headerTitle.map((item, idx) => {
+                let cellValue = '';
+                if(item.key === null) {
+                  cellValue = item.title
+                } else {
+                  cellValue = <TableSortLabel
+                    active={item.key === orderBy}
+                    direction={order}
+                    onClick={createSortHandler(item.key)}
+                  >
+                    {item.title}
+                  </TableSortLabel>
+                }
+                return <TableCell key={idx}>{cellValue}</TableCell>
+              })}
             </TableRow>
           </TableHead>
           <TableBody>
-            {users.map(row => (
+            {StableSort(users, getSorting(order, orderBy)).map(row => (
               <TableRow hover tabIndex={-1} key={row.id}>
                 <TableCell>{row.id}</TableCell>
                 <TableCell>
@@ -60,6 +85,7 @@ export default function Users() {
                 </TableCell>
                 <TableCell>{row.jira_id}</TableCell>
                 <TableCell>{row.position}</TableCell>
+                <TableCell><TeamMember {...row} /></TableCell>
               </TableRow>
             ))}
           </TableBody>
