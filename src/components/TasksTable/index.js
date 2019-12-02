@@ -94,31 +94,33 @@ export default function TaskTable({...props}) {
   };
 
   return(
-    <div className={classes.tableResponsive}>
-      <Table stickyHeader >
-        <TableHead>
-          <TableRow>
-            {headerTitle.map((item, idx) => {
-              let cellValue = '';
-              if(item.key === null) {
-                cellValue = item.title
-              } else {
-                cellValue = <TableSortLabel
-                  active={item.key === orderBy}
-                  direction={order}
-                  onClick={createSortHandler(item.key)}
-                >
-                  {item.title}
-                </TableSortLabel>
-              }
-              return <TableCell key={idx}>{cellValue}</TableCell>
-            })}
-          </TableRow>
-        </TableHead>
-        <TableBody>
-          <BodyData/>
-        </TableBody>
-      </Table>
+    <>
+      <div className={classes.tableResponsive}>
+        <Table stickyHeader >
+          <TableHead>
+            <TableRow>
+              {headerTitle.map((item, idx) => {
+                let cellValue = '';
+                if(item.key === null) {
+                  cellValue = item.title
+                } else {
+                  cellValue = <TableSortLabel
+                    active={item.key === orderBy}
+                    direction={order}
+                    onClick={createSortHandler(item.key)}
+                  >
+                    {item.title}
+                  </TableSortLabel>
+                }
+                return <TableCell key={idx}>{cellValue}</TableCell>
+              })}
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            <BodyData/>
+          </TableBody>
+        </Table>
+      </div>
       <TablePagination
         rowsPerPageOptions={DefaultConfig.DEFAULT_ROWS_PER_PAGE}
         component="div"
@@ -128,7 +130,7 @@ export default function TaskTable({...props}) {
         onChangePage={handleChangePage}
         onChangeRowsPerPage={handleChangeRowsPerPage}
       />
-    </div>
+    </>
   );
 }
 

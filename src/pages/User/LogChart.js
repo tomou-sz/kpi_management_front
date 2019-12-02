@@ -1,8 +1,7 @@
 import React, {useContext, useEffect} from 'react';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { Chart } from "react-google-charts";
 import PropTypes from 'prop-types';
 import Box from '@material-ui/core/Box';
-import Typography from '@material-ui/core/Typography';
 import {renderDateArray} from '../../utils/TimeFormat';
 import { KPIStoreContext } from '../../contexts/KPIStore';
 import Loading from '../../components/Loading';
@@ -36,28 +35,37 @@ export default function LogChart({...props}) {
 
   const ChartRender = () => {
     if(noDataDates.length === 0) {
-      const chartData = userLogWork.filter(removeWeekendDays)
+      let chartData = userLogWork.sort((a,b) => a.date.localeCompare(b.date))
+      .filter(removeWeekendDays)
       .map((item) => {
-        item.worklog = item.total_time_spent;
-        return item;
-      }).sort((a,b) => a.date.localeCompare(b.date));
+        const logWorkDate = new Date(item.date);
+        logWorkDate.setHours(0,0,0,0)
+        return [logWorkDate, item.total_time_spent];
+      });
+
+      // Add table header to worklog
+      chartData.unshift(['x', 'worklog']);
 
       return (
-        <Box p={1} width='100%' marginLeft='-50px' >
-          <ResponsiveContainer width='100%' height='100%' aspect={16/9} >
-            <LineChart
-              data={chartData}
-              margin={{
-                top: 10, right: 5, left: 5, bottom: 10,
-              }}
-            >
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="date" />
-              <YAxis />
-              <Tooltip />
-              <Line type="monotone" dataKey="worklog" stroke="#2196f3" activeDot={{ r: 8 }} />
-            </LineChart>
-          </ResponsiveContainer>
+        <Box p={1} width='100%' >
+          <Chart
+            width={'100%'}
+            height={'300px'}
+            chartType="LineChart"
+            loader={<div>Loading Chart</div>}
+            data={chartData}
+            options={{
+              hAxis: {
+                title: 'Log Works Last 7 Days',
+              },
+              vAxis: {
+                minValue: 0,
+                maxValue: 15
+              },
+              chartArea: { width: '85%' },
+              legend: 'none',
+            }}
+          />
         </Box>
       )
     } else {
@@ -68,11 +76,7 @@ export default function LogChart({...props}) {
   return (
     <Box display="flex" justifyContent="center" flexWrap="wrap" m={1} p={1}>
       <ChartRender/>
-      <Box p={1} bgcolor="grey.300">
-        <Typography variant="body2" component="p" color="textSecondary">Log Works Last 7 Days</Typography>
-      </Box>
     </Box>
-
   );
 }
 
@@ -80,7 +84,7 @@ const removeWeekendDays = (item) => new Date(item.date).getDay() !== 6 && new Da
 
 const getChartDates = () => {
   const currentDay = new Date();
-  const last7Day = currentDay.setDate(currentDay.getDate() - 7);
+  const last7Day = currentDay.setDate(currentDay.getDate() - 9);
   return renderDateArray(last7Day);
 }
 

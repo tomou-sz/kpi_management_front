@@ -36,7 +36,7 @@
   },
   "devDependencies": {
     "@material-ui/lab": "^4.0.0-alpha.33",
-    "recharts": "^1.8.5",
+    "react-google-charts": "^3.0.15",
     "styled-components": "^4.4.1"
   }
 }
