@@ -12,7 +12,7 @@ import {getTeam} from '../../components/TeamMember';
 export default function ShowProfile({...props}) {
   const {id, name, position, sprintID, jira_id} = props;
   const { tickets: [tickets] } = useContext(KPIStoreContext);
-  const userTickets = tickets.filter((item) => item.user_id === id && item.sprint_id === sprintID);
+  const userTickets = tickets.filter((item) => item.user_id === id && item.sprint_ids.indexOf(sprintID.toString()) !== -1);
   const TotalOriginalEstimate = userTickets.map((item) => item.original_estimate_seconds)
   .reduce((accumulator, currentValue) => {
     return accumulator + currentValue;

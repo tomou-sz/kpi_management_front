@@ -56,7 +56,7 @@ export default function LogChart({...props}) {
             data={chartData}
             options={{
               hAxis: {
-                title: 'Log Works Last 7 Days',
+                title: 'Log Works Last 5 Days',
               },
               vAxis: {
                 minValue: 0,
@@ -84,7 +84,7 @@ const removeWeekendDays = (item) => new Date(item.date).getDay() !== 6 && new Da
 
 const getChartDates = () => {
   const currentDay = new Date();
-  const last7Day = currentDay.setDate(currentDay.getDate() - 9);
+  const last7Day = currentDay.setDate(currentDay.getDate() - 7);
   return renderDateArray(last7Day);
 }
 

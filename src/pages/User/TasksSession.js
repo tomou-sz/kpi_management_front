@@ -9,15 +9,12 @@ export default function TasksSession({...props}) {
   const {userid, sprintID, reload} = props;
   const [loading, setLoading] = useState(true);
   const { tickets: [tickets, setTickets] } = useContext(KPIStoreContext);
-  const assignTickets = tickets.filter((item) => item.user_id === userid && item.sprint_id === sprintID);
+  const assignTickets = tickets.filter((item) => item.user_id === userid && item.sprint_ids.indexOf(sprintID.toString()) !== -1);
 
   const fetchTasks = () => {
     GetTasks(userid, sprintID).then((results) => {
       const keyList = results.data.sprint_tickets.map((item) => item.key);
       const ticketsMap = results.data.sprint_tickets.map((item) => {
-        // TODO BE return sprint_id. since 1 ticket might have more than 1 sprint_id
-        // item.sprint_id = '1,2,3'
-        item.sprint_id = sprintID;
         item.user_id = userid;
         return item;
       });
