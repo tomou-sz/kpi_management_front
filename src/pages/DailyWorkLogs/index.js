@@ -1,13 +1,15 @@
 import React, { useState, useContext, useEffect } from 'react';
-import axios from 'axios';
 import Paper from '@material-ui/core/Paper';
 import Button from '@material-ui/core/Button';
 import Tooltip from '@material-ui/core/Tooltip';
 import RefreshIcon from '@material-ui/icons/Refresh';
+import Typography from '@material-ui/core/Typography';
 import DailyWorkLogsTable from '../../components/DailyWorkLogsTable';
 import Loading from '../../components/Loading';
-import { KPIStoreContext } from '../../contexts/KPIStore.js';
-import GetUser from '../../utils/GetUser.js';
+import { KPIStoreContext } from '../../contexts/KPIStore';
+import GetUser from '../../utils/GetUser';
+import GetLogWork from '../../utils/GetLogWork';
+import {getMonday, dateFormat, renderDateArray} from '../../utils/TimeFormat';
 
 const DAYS_OF_WEEK = 7;
 
@@ -39,7 +41,7 @@ export default function DailyWorkLogs() {
               date: date,
               total_time_spent: undefined
             });
-            promises.push(fetchLogWork(user.jira_id, date));
+            promises.push(GetLogWork(user.jira_id, date));
           }
         }
       }
@@ -74,6 +76,7 @@ export default function DailyWorkLogs() {
         <Button variant="contained" onClick={refreshData}><RefreshIcon/></Button>
       </Tooltip>
       <Paper style={{marginBottom: '1rem'}}>
+        <Typography variant="h5" component="h5">{ new Date(targetDateRange[0]).toDateString() }</Typography>
         <DailyWorkLogsTable targetDateRange={targetDateRange} users={users} workLogs={workLogs || []} />
       </Paper>
       <Button variant="contained" onClick={ () => {
@@ -96,54 +99,3 @@ export default function DailyWorkLogs() {
     </>
   );
 };
-
-const dateFormat = function(date) {
-  var year  = date.getFullYear();
-  var month = date.getMonth() + 1;
-  var day   = ("0" + date.getDate()).slice(-2);
-  return String(year) + "-" + String(month) + "-" + String(day);
-}
-
-const getDate = function(day_later, currentDate) {
-  if( currentDate === undefined || !currentDate ) {
-    currentDate = new Date();
-  }
-  var date = new Date(currentDate);
-  date.setDate(date.getDate() + day_later);
-  return dateFormat(date);
-};
-
-function getMonday(d) {
-  d = new Date(d);
-  var day = d.getDay(),
-      diff = d.getDate() - day + (day === 0 ? -6:1);
-  return new Date(d.setDate(diff));
-}
-
-const renderDateArray = function(currentDate) {
-  if( currentDate === undefined || !currentDate ) {
-    currentDate = new Date();
-  }
-  let dateArray = [];
-  for (let i = 0; i < (DAYS_OF_WEEK); i++) {
-    dateArray.push(getDate(i, currentDate))
-  }
-  dateArray.sort((a,b) => a.date > b.date)
-  return dateArray;
-}
-
-const fetchLogWork = function(jiraID, date) {
-  return axios.get(process.env.REACT_APP_SERVER_URL + '/daily_work_logs/get_work_log', {
-    params: {
-      jira_id: jiraID,
-      date: date,
-    }
-  })
-  .then((results) => {
-    return {
-      jira_id: results.data.jira_id,
-      date: results.config.params.date,
-      total_time_spent: results.data.total_time_spent
-    }
-  })
-}
