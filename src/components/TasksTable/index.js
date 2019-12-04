@@ -7,6 +7,8 @@ import TimeFormat from '../../utils/TimeFormat';
 import { makeStyles } from '@material-ui/core/styles';
 import StableSort, {getSorting} from '../../utils/StableSort';
 import DefaultConfig from '../../utils/DefaultConfig';
+import TasksStatus from '../../components/TasksStatus/';
+import TasksType from '../../components/TasksType/';
 
 const useStyles = makeStyles({
   tableResponsive: {
@@ -67,9 +69,15 @@ export default function TaskTable({...props}) {
               {row.key}
             </Typography>
           </TableCell>
-          <TableCell>{row.issuetype}</TableCell>
+          <TableCell>
+            <TasksType>
+              {row.issuetype}
+            </TasksType>
+          </TableCell>
           <TableCell>{row.summary}</TableCell>
-          <TableCell>{row.status_key}</TableCell>
+          <TableCell>
+            <TasksStatus>{row.status_key}</TasksStatus>
+          </TableCell>
           <TableCell style={{'whiteSpace': 'nowrap'}} >{TimeFormat(row.original_estimate_seconds)}</TableCell>
           <TableCell style={{'whiteSpace': 'nowrap'}} >{TimeFormat(row.time_spent_seconds)}</TableCell>
           <TableCell style={{'whiteSpace': 'nowrap'}} >{TimeFormat(row.remaining_estimate_seconds)}</TableCell>
