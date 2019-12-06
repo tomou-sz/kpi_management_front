@@ -1,41 +1,82 @@
-import React, { useState, useContext } from 'react';
+import React, { useState, useContext, useEffect } from 'react';
 import { useParams } from "react-router-dom";
 import Grid from '@material-ui/core/Grid';
 import Button from '@material-ui/core/Button';
 import Tooltip from '@material-ui/core/Tooltip';
-import Select from '@material-ui/core/Select';
 import RefreshIcon from '@material-ui/icons/Refresh';
 import { KPIStoreContext } from '../../contexts/KPIStore';
 import NotFound from '../../components/NotFound';
+import Loading from '../../components/Loading';
 import ShowProfile from './ShowProfile';
-import TasksSession from './TasksSession';
-import DefaultConfig from '../../utils/DefaultConfig';
+import TasksSection from './TasksSection';
 import LogChart from './LogChart';
+import { makeStyles } from '@material-ui/core/styles';
+import GetSprints from '../../utils/GetSprints';
+import SelectSprint from '../../components/SelectSprint';
 
-const sprintList = [16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 30];
+const useStyles = makeStyles(theme => ({
+  order_1: {
+    [theme.breakpoints.up('md')]: {
+      order: 1,
+    },
+    [theme.breakpoints.down('xs')]: {
+      order: 2,
+    },
+  },
+  order_2: {
+    [theme.breakpoints.up('md')]: {
+      order: 2,
+    },
+    [theme.breakpoints.down('xs')]: {
+      order: 1,
+    },
+  },
+}));
 
 export default function User() {
+  const classes = useStyles();
   const { id } = useParams();
-  const [sprint, setSprint] = useState(DefaultConfig.CURRENT_SPRINT_ID);
   const [reloadComponent, setReloadComponent] = useState(0);
-  const { users: [users] } = useContext(KPIStoreContext);
+  const [sprint, setSprint] = useState(null);
+  const { users: [users],
+    boardSprints: [boardSprints, setBoardSprints] } = useContext(KPIStoreContext);
   const user = users.filter((item) => item.id === Number(id))[0];
+
+  useEffect(() => {
+    if(boardSprints.length === 0) {
+      GetSprints()
+      .then((results) => {
+        setBoardSprints(results.data)
+      })
+    } else {
+      setSprint(boardSprints.filter((item) => item.state === 'active')[0].id)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [boardSprints])
+
+  if(boardSprints.length === 0 || sprint === null) {
+    return <Loading width={'100%'} />
+  }
+
+  if(user === undefined || boardSprints.length === 0) {
+    return <NotFound width={'100%'} />
+  }
 
   const refreshData = () => {
     setReloadComponent((new Date()).getTime());
   }
 
-  if(user === undefined) {
-    return <NotFound width={'100%'} />
-  }
-
-  const handleChange = name => event => {
+  const handleChange = () => event => {
     setSprint(parseInt(event.target.value))
   };
 
   return(
     <Grid container spacing={3}>
-      <Grid item xs={9}>
+      <Grid item xs={12} md={3} className={classes.order_2} >
+        <ShowProfile {...user} sprintID={sprint}/>
+        <LogChart {...user} />
+      </Grid>
+      <Grid item xs={12} md={9} className={classes.order_1} >
         <Grid container spacing={3}>
           <Grid item xs={6}>
             <Tooltip title="Refresh Data" aria-label="Refresh Data">
@@ -44,23 +85,11 @@ export default function User() {
           </Grid>
           <Grid item xs={6}>
             <div style={{textAlign: "right"}} >
-              <Select
-                native
-                value={sprint}
-                onChange={handleChange()}
-              >
-                {sprintList.map((item, idx) => {
-                  return <option key={idx} value={item}>SPRINT: {item}</option>
-                })}
-              </Select>
+              <SelectSprint value={sprint} onChange={handleChange()}/>
             </div>
           </Grid>
         </Grid>
-        {<TasksSession userid={user.id} sprintID={sprint} reload={reloadComponent} />}
-      </Grid>
-      <Grid item xs={3}>
-        <ShowProfile {...user} sprintID={sprint}/>
-        <LogChart {...user} />
+        {<TasksSection userid={user.id} sprintID={sprint} reload={reloadComponent} />}
       </Grid>
     </Grid>
   );

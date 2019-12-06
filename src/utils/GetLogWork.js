@@ -9,9 +9,9 @@ export default (jiraID, date) => {
   })
   .then((results) => {
     return {
-      jira_id: results.data.jira_id,
+      jira_id: results.data.data.jira_id,
       date: results.config.params.date,
-      total_time_spent: results.data.total_time_spent
+      total_time_spent: results.data.data.total_time_spent
     }
   })
 }

@@ -6,6 +6,7 @@ import DailyWorkLogs from '../pages/DailyWorkLogs';
 import Users from '../pages/Users';
 import SignIn from '../pages/SignIn';
 import User from '../pages/User';
+import Productivities from '../pages/Productivities';
 
 export default function Routes() {
   return (
@@ -15,6 +16,7 @@ export default function Routes() {
       <Route path="/daily_work_logs" component={DailyWorkLogs} isPrivate title='Daily Work Logs' />
       <Route path="/users" component={Users} isPrivate title='Member List' />
       <Route path="/user/:id" component={User} isPrivate title='Member' />
+      <Route path="/productivities" component={Productivities} isPrivate title='Productivities' />
 
       {/* redirect user to SignIn page if route does not exist and user is not authenticated */}
       <Route component={SignIn} />
