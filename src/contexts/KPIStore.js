@@ -13,7 +13,7 @@ export default ({ children }) => {
     workLogs: [workLogs, setWorkLogs],
     users: [users, setUsers],
     tickets: [tickets, setTickets],
-    boardSprints: [boardSprints, setBoardSprints]
+    boardSprints: [boardSprints, setBoardSprints],
   }
 
   return <KPIStoreContext.Provider value={store}>{children}</KPIStoreContext.Provider>
