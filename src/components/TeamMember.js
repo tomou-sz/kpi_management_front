@@ -17,6 +17,8 @@ TeamMember.propTypes = {
 export function getTeam(jira_id) {
   if(DefaultConfig.TEAM_FE.indexOf(jira_id) !== -1) {
     return 'Frontend Member';
+  } else if(DefaultConfig.TEAM_FE_DESIGN.indexOf(jira_id) !== -1) {
+    return 'Design Member';
   } else if(DefaultConfig.TEAM_BE.indexOf(jira_id) !== -1) {
     return 'Backend Member';
   } else if(DefaultConfig.TEAM_QC.indexOf(jira_id) !== -1) {

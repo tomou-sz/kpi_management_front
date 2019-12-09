@@ -1,4 +1,4 @@
-import React, { useState, useContext, useEffect } from "react";
+import React, { useContext, useEffect, useRef } from "react";
 import Paper from '@material-ui/core/Paper';
 import GetProductivity from '../../utils/GetProductivity';
 import ProductiveTable from '../../components/ProductiveTable';
@@ -7,29 +7,42 @@ import DefaultConfig from '../../utils/DefaultConfig';
 
 export default function Dashboard({...props}) {
   const {sprint_id, reload, name} = props;
-  const { users: [users] } = useContext(KPIStoreContext);
-  const [productive, setProductive] = useState([]);
+  const { users: [users],
+  productive: [productive, setProductive] } = useContext(KPIStoreContext);
   const jira_ids = DefaultConfig[name];
-  const user_ids = users.filter((item) => jira_ids.indexOf(item.jira_id) !== -1).map((item) => item.id);
+  const user_ids = users.filter(item => jira_ids.indexOf(item.jira_id) !== -1).map(item => item.id);
+  const productiveData = getProductiveTable(productive, jira_ids, sprint_id);
+  const prevReloadState = useRef(reload);
 
   useEffect(() => {
-    setProductive([])
-    let promises = user_ids.map((item) => {
-      return GetProductivity(item, sprint_id).then((results) => {
-        const productive = results.data;
-        const currentUser = users.filter((item) => item.jira_id === productive.jira_id)[0];
-        return Object.assign(productive, currentUser);
-      })
-    });
-    Promise.all(promises).then((results) => {
-      setProductive(results)
-    });
+    if( prevReloadState.current !== reload ) {
+      setProductive({type: 'REMOVE_PRODUCTIVE', target_sprint_id: sprint_id})
+    }
+
+    if( productiveData.length === 0 || prevReloadState.current !== reload) {
+      let promises = user_ids.map(item => {
+        return GetProductivity(item, sprint_id).then(results => {
+          const productivity = results.data;
+          const currentUser = users.filter(item => item.jira_id === productivity.jira_id)[0];
+          return Object.assign(productivity, currentUser);
+        })
+      });
+      Promise.all(promises).then(results => {
+        setProductive({type: 'ADD_OR_UPDATE_PRODUCTIVE', data: results})
+      });
+    }
+
+    prevReloadState.current = reload;
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [sprint_id, reload])
 
   return (
     <Paper style={{marginBottom: '1rem'}}>
-      <ProductiveTable data={productive.length !== 0 ? productive : undefined} />
+      <ProductiveTable data={productiveData.length !== 0 ? productiveData : undefined} />
     </Paper>
   )
 }
+
+const getProductiveTable = (data, jira_ids, target_sprint_id) => {
+  return data.filter(item => jira_ids.indexOf(item.jira_id) !== -1 && parseInt(item.target_sprint_id) === target_sprint_id);
+};

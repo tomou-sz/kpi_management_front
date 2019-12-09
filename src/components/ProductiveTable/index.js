@@ -131,7 +131,7 @@ export default function ProductiveTable({...props}) {
           }
           if(col.key === 'productivity') {
             const totalKPI = tableData.map((item) => getProductivity(item.done_tickets_estimate_total, item.total_work_logs)).reduce((total, currentValue) => total + currentValue)
-            cellData = `${parseInt(totalKPI / tableData.length, 10)}%`
+            cellData = `${Math.ceil(totalKPI / tableData.length)}%`
           } else {
             const totalLogWork = tableData.map((item) => item[col.key]).reduce((total, currentValue) => total + currentValue);
             cellData = TimeFormat(totalLogWork);
@@ -146,7 +146,7 @@ export default function ProductiveTable({...props}) {
     );
   };
 
-  const createSortHandler = (property) => (event)  => {
+  const createSortHandler = (property) => ()  => {
     const isDesc = orderBy === property && order === 'desc';
     setOrder(isDesc ? 'asc' : 'desc');
     setOrderBy(property);
