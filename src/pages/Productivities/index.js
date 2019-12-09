@@ -15,6 +15,7 @@ import ProductiveSection from './ProductiveSection';
 
 const TeamList = [
   {title: 'Frontend', name: 'TEAM_FE'},
+  {title: 'Frontend - Design', name: 'TEAM_FE_DESIGN'},
   {title: 'Backend', name: 'TEAM_BE'},
   {title: 'Infrastructure', name: 'TEAM_INF'},
   {title: 'QC/QA', name: 'TEAM_QC'},
