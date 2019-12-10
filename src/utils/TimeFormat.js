@@ -14,6 +14,14 @@ export default (second) => {
   return day + hours + minutes;
 }
 
+export function getHour(second) {
+  if(second === undefined || !second ) {
+    return 0
+  }
+  const sec_num = parseInt(second, 10);
+  return parseFloat((sec_num / 3600).toFixed(2));
+}
+
 export function getMonday(d) {
   d = new Date(d);
   var day = d.getDay(),
@@ -21,11 +29,14 @@ export function getMonday(d) {
   return new Date(d.setDate(diff));
 }
 
-export function dateFormat(date) {
+export function dateFormat(date, separator) {
+  if( separator === null || separator === undefined ) {
+    separator = '-'
+  }
   var year  = date.getFullYear();
   var month = date.getMonth() + 1;
   var day   = ("0" + date.getDate()).slice(-2);
-  return String(year) + "-" + String(month) + "-" + String(day);
+  return String(year) + separator + String(month) + separator + String(day);
 }
 
 const getDate = (day_later, currentDate) => {

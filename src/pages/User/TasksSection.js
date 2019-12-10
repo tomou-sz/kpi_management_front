@@ -4,15 +4,17 @@ import TasksTable from '../../components/TasksTable';
 import GetTasks from '../../utils/GetTasks.js';
 import { KPIStoreContext } from '../../contexts/KPIStore.js';
 import PropTypes from 'prop-types';
+import { CancelToken } from 'axios';
 
 export default function TasksSession({...props}) {
   const {userid, sprintID, reload} = props;
   const [loading, setLoading] = useState(true);
   const { tickets: [tickets, setTickets] } = useContext(KPIStoreContext);
   const assignTickets = tickets.filter((item) => item.user_id === userid && item.sprint_ids.indexOf(sprintID.toString()) !== -1);
+  const source = CancelToken.source();
 
   const fetchTasks = () => {
-    GetTasks(userid, sprintID).then((results) => {
+    GetTasks(userid, sprintID, { cancelToken: source.token }).then((results) => {
       const keyList = results.data.sprint_tickets.map((item) => item.key);
       const ticketsMap = results.data.sprint_tickets.map((item) => {
         item.user_id = userid;
@@ -28,19 +30,19 @@ export default function TasksSession({...props}) {
     .finally(() => {
       setLoading(false)
     });
-  }
+  };
 
   useEffect(() => {
     // reset Loading State when Props(sprintID) change
     setLoading(true)
-  }, [sprintID])
+  }, [sprintID]);
 
   useEffect(() => {
     // fetchTask when Props(reload) change
     setLoading(true)
     fetchTasks()
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [reload])
+  }, [reload]);
 
   useEffect(() => {
     if(assignTickets.length !== 0) {
@@ -49,10 +51,11 @@ export default function TasksSession({...props}) {
       fetchTasks()
     }
     return (() => {
-      localStorage.setItem('tickets', JSON.stringify(tickets))
+      localStorage.setItem('tickets', JSON.stringify(tickets));
+      source.cancel();
     })
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [userid, sprintID])
+  }, [userid, sprintID]);
 
   return (
     <Paper style={{marginBottom: '1rem'}}>

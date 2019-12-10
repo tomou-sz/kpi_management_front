@@ -6,6 +6,7 @@ import ListItemIcon from '@material-ui/core/ListItemIcon';
 import AssessmentIcon from '@material-ui/icons/Assessment';
 import AssignmentIcon from '@material-ui/icons/Assignment';
 import PeopleIcon from '@material-ui/icons/People';
+import TimelineIcon from '@material-ui/icons/Timeline';
 
 export default function Menu() {
   return (
@@ -21,6 +22,10 @@ export default function Menu() {
       <ListItem button component={Link} to="/daily_work_logs">
         <ListItemIcon><AssignmentIcon /></ListItemIcon>
         Daily Work Logs
+      </ListItem>
+      <ListItem button component={Link} to="/productivities">
+        <ListItemIcon><TimelineIcon /></ListItemIcon>
+        Productivities
       </ListItem>
     </List>
   );

@@ -6,6 +6,7 @@ import {renderDateArray} from '../../utils/TimeFormat';
 import { KPIStoreContext } from '../../contexts/KPIStore';
 import Loading from '../../components/Loading';
 import GetLogWork from '../../utils/GetLogWork';
+import { CancelToken } from 'axios';
 
 export default function LogChart({...props}) {
   const {jira_id} = props;
@@ -14,11 +15,12 @@ export default function LogChart({...props}) {
   const myLogWorkDates = workLogs.filter((item) => item.jira_id === jira_id).map((item) => item.date);
   const noDataDates = currentWeek.filter((item) => myLogWorkDates.indexOf(item) === -1);
   const userLogWork = workLogs.filter((item) => item.jira_id === jira_id && currentWeek.indexOf(item.date) !== -1);
+  const source = CancelToken.source();
 
   useEffect(() => {
     if(noDataDates.length > 0) {
       const promises = noDataDates.map((item) => {
-        return GetLogWork(jira_id, item)
+        return GetLogWork(jira_id, item, { cancelToken: source.token })
       })
       Promise.all(promises).then((results) => {
         setWorkLogs([...workLogs, ...results]);
@@ -29,6 +31,7 @@ export default function LogChart({...props}) {
         return item.total_time_spent !== undefined
       })
       localStorage.setItem('workLogs', JSON.stringify(cacheLogs));
+      source.cancel();
     })
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [workLogs])
@@ -74,7 +77,7 @@ export default function LogChart({...props}) {
   }
 
   return (
-    <Box display="flex" justifyContent="center" flexWrap="wrap" m={1} p={1}>
+    <Box display="flex" justifyContent="center" flexWrap="wrap" m={0} p={0}>
       <ChartRender/>
     </Box>
   );
