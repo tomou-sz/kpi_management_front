@@ -29,11 +29,14 @@ export function getMonday(d) {
   return new Date(d.setDate(diff));
 }
 
-export function dateFormat(date) {
+export function dateFormat(date, separator) {
+  if( separator === null || separator === undefined ) {
+    separator = '-'
+  }
   var year  = date.getFullYear();
   var month = date.getMonth() + 1;
   var day   = ("0" + date.getDate()).slice(-2);
-  return String(year) + "-" + String(month) + "-" + String(day);
+  return String(year) + separator + String(month) + separator + String(day);
 }
 
 const getDate = (day_later, currentDate) => {
