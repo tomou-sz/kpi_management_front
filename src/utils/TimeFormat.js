@@ -19,7 +19,7 @@ export function getHour(second) {
     return 0
   }
   const sec_num = parseInt(second, 10);
-  return Math.floor(sec_num / 3600);
+  return parseFloat((sec_num / 3600).toFixed(2));
 }
 
 export function getMonday(d) {

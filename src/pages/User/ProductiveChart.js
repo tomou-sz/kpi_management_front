@@ -6,6 +6,7 @@ import { KPIStoreContext } from '../../contexts/KPIStore';
 import Loading from '../../components/Loading';
 import GetProductivity, { calcProductivity } from '../../utils/GetProductivity';
 import StableSort, { getSorting } from '../../utils/StableSort';
+import { CancelToken } from 'axios';
 
 const PREV_SPRINT = 6;
 
@@ -15,10 +16,11 @@ export default function ProductiveChart({...props}) {
     boardSprints: [boardSprints] } = useContext(KPIStoreContext);
   const completedSprints = getCompletedSprints(boardSprints).map(item => item.id);
   const completedData = productive.filter(item => completedSprints.indexOf(parseInt(item.target_sprint_id)) !== -1 && item.user_id === id);
+  const source = CancelToken.source();
 
   useEffect(() => {
     let promises = completedSprints.map((sprint_id) => {
-      return GetProductivity(id, sprint_id).then(results => {
+      return GetProductivity(id, sprint_id, { cancelToken: source.token }).then(results => {
         const productivity = results.data;
         return Object.assign(productivity, {id: id, name: name});
       })
@@ -26,6 +28,9 @@ export default function ProductiveChart({...props}) {
     Promise.all(promises).then(results => {
       dispatchProductive({type: 'ADD_OR_UPDATE_PRODUCTIVE', data: results})
     });
+    return (() => {
+      source.cancel()
+    })
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 

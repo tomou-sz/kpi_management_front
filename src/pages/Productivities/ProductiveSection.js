@@ -4,6 +4,7 @@ import GetProductivity from '../../utils/GetProductivity';
 import ProductiveTable from '../../components/ProductiveTable';
 import { KPIStoreContext } from '../../contexts/KPIStore';
 import DefaultConfig from '../../utils/DefaultConfig';
+import { CancelToken } from 'axios';
 
 export default function Dashboard({...props}) {
   const {sprint_id, reload, name} = props;
@@ -13,6 +14,7 @@ export default function Dashboard({...props}) {
   const user_ids = users.filter(item => jira_ids.indexOf(item.jira_id) !== -1).map(item => item.id);
   const productiveData = getProductiveTable(productive, jira_ids, sprint_id);
   const prevReloadState = useRef(reload);
+  const source = CancelToken.source();
 
   useEffect(() => {
     if( prevReloadState.current !== reload ) {
@@ -21,7 +23,7 @@ export default function Dashboard({...props}) {
 
     if( productiveData.length === 0 || prevReloadState.current !== reload) {
       let promises = user_ids.map(item => {
-        return GetProductivity(item, sprint_id).then(results => {
+        return GetProductivity(item, sprint_id, { cancelToken: source.token }).then(results => {
           const productivity = results.data;
           const currentUser = users.filter(item => item.jira_id === productivity.jira_id)[0];
           return Object.assign(productivity, currentUser);
@@ -33,6 +35,9 @@ export default function Dashboard({...props}) {
     }
 
     prevReloadState.current = reload;
+    return (() => {
+      source.cancel()
+    })
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [sprint_id, reload])
 
