@@ -9,6 +9,7 @@ import { makeStyles, withStyles } from '@material-ui/core/styles';
 import StableSort, {getSorting} from '../../utils/StableSort';
 import Tooltip from '@material-ui/core/Tooltip';
 import { getTeam } from '../../components/TeamMember';
+import { calcProductivity } from '../../utils/GetProductivity';
 
 const useStyles = makeStyles({
   tableResponsive: {
@@ -130,7 +131,7 @@ export default function ProductiveTable({...props}) {
             return false
           }
           if(col.key === 'productivity') {
-            const totalKPI = tableData.map((item) => getProductivity(item.done_tickets_estimate_total, item.total_work_logs)).reduce((total, currentValue) => total + currentValue)
+            const totalKPI = tableData.map((item) => calcProductivity(item.done_tickets_estimate_total, item.total_work_logs)).reduce((total, currentValue) => total + currentValue)
             cellData = `${Math.ceil(totalKPI / tableData.length)}%`
           } else {
             const totalLogWork = tableData.map((item) => item[col.key]).reduce((total, currentValue) => total + currentValue);
@@ -213,9 +214,6 @@ const convertData = (data) => {
   return data.map((item) => {
     const mainProject = item.kpi.main;
     const othersProject = item.kpi.others;
-    const total_work_logs = mainProject.sprint_work_logs_total + mainProject.carried_over_logs_total + mainProject.do_over_logs_total;
-    const productivity = `${getProductivity(mainProject.done_tickets_estimate_total, total_work_logs)}%`;
-    const total_for_weeks = mainProject.sprint_work_logs_total + mainProject.review_time_spend_total + othersProject.work_logs_total;
 
     const returnedTarget = Object.assign(item, {
       carried_over_logs_total: mainProject.carried_over_logs_total,
@@ -225,16 +223,9 @@ const convertData = (data) => {
       review_time_spend_total: mainProject.review_time_spend_total,
       sprint_work_logs_total: mainProject.sprint_work_logs_total,
       others_work_log_total: othersProject.work_logs_total,
-      total_work_logs: total_work_logs || 0,
-      productivity: productivity,
-      total_for_weeks: total_for_weeks || 0,
     });
     return returnedTarget
   })
-}
-
-const getProductivity = (done, total) => {
-  return Math.ceil((done / total) * 100) || 0;
 }
 
 ProductiveTable.propTypes = {

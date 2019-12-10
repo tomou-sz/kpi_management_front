@@ -6,3 +6,7 @@ export default (user_id, sprint_id) => {
     return results.data
   })
 }
+
+export function calcProductivity(done, total) {
+  return Math.ceil((done / total) * 100) || 0;
+}

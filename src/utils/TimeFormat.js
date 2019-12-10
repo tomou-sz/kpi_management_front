@@ -14,6 +14,14 @@ export default (second) => {
   return day + hours + minutes;
 }
 
+export function getHour(second) {
+  if(second === undefined || !second ) {
+    return 0
+  }
+  const sec_num = parseInt(second, 10);
+  return Math.floor(sec_num / 3600);
+}
+
 export function getMonday(d) {
   d = new Date(d);
   var day = d.getDay(),

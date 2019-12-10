@@ -74,7 +74,7 @@ export default function LogChart({...props}) {
   }
 
   return (
-    <Box display="flex" justifyContent="center" flexWrap="wrap" m={1} p={1}>
+    <Box display="flex" justifyContent="center" flexWrap="wrap" m={0} p={0}>
       <ChartRender/>
     </Box>
   );

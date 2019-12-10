@@ -4,7 +4,7 @@ import {Table, TableBody, TableCell, TableHead, TableRow, TableSortLabel} from '
 import { makeStyles } from '@material-ui/core/styles';
 import Typography from '@material-ui/core/Typography';
 import Skeleton from '@material-ui/lab/Skeleton';
-import StableSort, {getSorting} from '../../utils/StableSort';
+import StableSort, { getSorting } from '../../utils/StableSort';
 
 const useStyles = makeStyles({
   dark_bg: {

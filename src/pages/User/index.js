@@ -13,6 +13,8 @@ import LogChart from './LogChart';
 import { makeStyles } from '@material-ui/core/styles';
 import GetSprints from '../../utils/GetSprints';
 import SelectSprint from '../../components/SelectSprint';
+import CompletedSprintsChart from './CompletedSprintsChart';
+import ProductiveChart from './ProductiveChart';
 
 const useStyles = makeStyles(theme => ({
   order_1: {
@@ -74,6 +76,8 @@ export default function User() {
     <Grid container spacing={3}>
       <Grid item xs={12} md={3} className={classes.order_2} >
         <ShowProfile {...user} sprintID={sprint}/>
+        <ProductiveChart {...user} />
+        <CompletedSprintsChart {...user} />
         <LogChart {...user} />
       </Grid>
       <Grid item xs={12} md={9} className={classes.order_1} >
