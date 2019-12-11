@@ -5,6 +5,7 @@ import { makeStyles } from '@material-ui/core/styles';
 import Typography from '@material-ui/core/Typography';
 import Skeleton from '@material-ui/lab/Skeleton';
 import StableSort, { getSorting } from '../../utils/StableSort';
+import WorkLogHighlight from '../WorkLogHighlight/';
 
 const useStyles = makeStyles({
   dark_bg: {
@@ -67,7 +68,7 @@ export default function DailyWorkLogsTable({...props}) {
                 let isWeekend =  currentDay === 6 || currentDay === 0 ? classes.dark_bg : '';
                 let totalTimeSpent = (() => {
                   if(!!logtime[0] && logtime[0].total_time_spent !== undefined) {
-                    return logtime[0].total_time_spent
+                    return <WorkLogHighlight logtime={logtime[0]} />
                   } else {
                     return <Skeleton variant="rect" height={20} />
                   }
