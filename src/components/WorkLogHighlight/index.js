@@ -16,11 +16,11 @@ const renderContent = (logtime) => {
   }
 }
 
-const WorkLogHighlight = (props) => {
+export default function WorkLogHighlight(props) {
   return(
-    <div>
+    <>
       {renderContent(props.logtime)}
-    </div>
+    </>
   );
 }
 
@@ -31,5 +31,3 @@ WorkLogHighlight.defaultProps = {
 WorkLogHighlight.propTypes = {
   logtime: PropTypes.object.isRequired
 }
-
-export default WorkLogHighlight;
