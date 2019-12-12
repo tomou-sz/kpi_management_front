@@ -9,20 +9,19 @@ import { CancelToken } from 'axios';
 export default function TasksSession({...props}) {
   const {userid, sprintID, reload} = props;
   const [loading, setLoading] = useState(true);
-  const { tickets: [tickets, setTickets] } = useContext(KPIStoreContext);
+  const { tickets: [tickets, dispatchTickets] } = useContext(KPIStoreContext);
   const assignTickets = tickets.filter((item) => item.user_id === userid && item.sprint_ids.indexOf(sprintID.toString()) !== -1);
   const source = CancelToken.source();
 
   const fetchTasks = () => {
+    setLoading(true)
     GetTasks(userid, sprintID, { cancelToken: source.token }).then((results) => {
-      const keyList = results.data.sprint_tickets.map((item) => item.key);
       const ticketsMap = results.data.sprint_tickets.map((item) => {
         item.user_id = userid;
         return item;
       });
-      const lastTickets = tickets.filter((item) => keyList.indexOf(item.key) === -1);
-      setTickets([...lastTickets, ...ticketsMap])
-      setLoading(false)
+      dispatchTickets({type: 'ADD_OR_UPDATE_TICKETS', data: ticketsMap})
+      setLoading(false);
     })
     .catch((error) => {
       // TODO: implement Snackbar component in the future
@@ -33,29 +32,23 @@ export default function TasksSession({...props}) {
   };
 
   useEffect(() => {
-    // reset Loading State when Props(sprintID) change
-    setLoading(true)
-  }, [sprintID]);
-
-  useEffect(() => {
-    // fetchTask when Props(reload) change
-    setLoading(true)
-    fetchTasks()
+    if(sprintID !== -1) {
+      fetchTasks()
+    }
+    return (() => {
+      source.cancel();
+    })
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [reload]);
+  }, [userid, reload]);
 
   useEffect(() => {
     if(assignTickets.length !== 0) {
       setLoading(false)
-    } else {
+    } else if(sprintID !== -1) {
       fetchTasks()
     }
-    return (() => {
-      localStorage.setItem('tickets', JSON.stringify(tickets));
-      source.cancel();
-    })
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [userid, sprintID]);
+  }, [sprintID]);
 
   return (
     <Paper style={{marginBottom: '1rem'}}>

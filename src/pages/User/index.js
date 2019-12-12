@@ -39,7 +39,7 @@ export default function User() {
   const classes = useStyles();
   const { id } = useParams();
   const [reloadComponent, setReloadComponent] = useState(0);
-  const [sprint, setSprint] = useState(null);
+  const [sprint, setSprint] = useState(-1);
   const { users: [users],
     boardSprints: [boardSprints, setBoardSprints] } = useContext(KPIStoreContext);
   const user = users.filter((item) => item.id === Number(id))[0];
@@ -50,7 +50,7 @@ export default function User() {
       .then((results) => {
         setBoardSprints(results.data)
       })
-    } else {
+    } else if(sprint === -1) {
       setSprint(boardSprints.filter((item) => item.state === 'active')[0].id)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps

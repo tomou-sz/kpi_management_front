@@ -11,18 +11,10 @@ import { KPIStoreContext } from '../../contexts/KPIStore';
 import GetSprints from '../../utils/GetSprints';
 import SelectSprint from '../../components/SelectSprint';
 import ProductiveSection from './ProductiveSection';
-
-
-const TeamList = [
-  {title: 'Frontend', name: 'TEAM_FE'},
-  {title: 'Frontend - Design', name: 'TEAM_FE_DESIGN'},
-  {title: 'Backend', name: 'TEAM_BE'},
-  {title: 'Infrastructure', name: 'TEAM_INF'},
-  {title: 'QC/QA', name: 'TEAM_QC'},
-];
+import DefaultConfig from '../../utils/DefaultConfig';
 
 export default function Productivities() {
-  const [sprint, setSprint] = useState(null);
+  const [sprint, setSprint] = useState(-1);
   const { boardSprints: [boardSprints, setBoardSprints] } = useContext(KPIStoreContext);
   const [reloadComponent, setReloadComponent] = useState(0);
 
@@ -32,7 +24,7 @@ export default function Productivities() {
       .then((results) => {
         setBoardSprints(results.data)
       })
-    } else {
+    } else if(sprint === -1) {
       setSprint(boardSprints.filter((item) => item.state === 'active')[0].id)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -76,7 +68,7 @@ export default function Productivities() {
           </div>
         </Grid>
       </Grid>
-      {TeamList.map((team, idx) => {
+      {DefaultConfig.TEAM_LIST.map((team, idx) => {
         return (
           <Grid key={idx} container spacing={3}>
             <Grid item xs={12}>
