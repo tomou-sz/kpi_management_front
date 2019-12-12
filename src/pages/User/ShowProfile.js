@@ -6,11 +6,10 @@ import Typography from '@material-ui/core/Typography';
 import Skeleton from '@material-ui/lab/Skeleton';
 import Divider from '@material-ui/core/Divider';
 import Avatar from '@material-ui/core/Avatar';
-import Loading from '../../components/Loading';
 import { KPIStoreContext } from '../../contexts/KPIStore';
 import TimeFormat from '../../utils/TimeFormat';
 import {getTeam} from '../../components/TeamMember';
-
+import { calcProductivity } from '../../utils/GetProductivity';
 
 export default function ShowProfile({...props}) {
   const {id, name, position, sprintID, jira_id} = props;
@@ -22,14 +21,10 @@ export default function ShowProfile({...props}) {
   useEffect(() => {
     if( userProductiveData === undefined || userProductiveData.length === 0 ) {
       GetProductivity(id, sprintID).then((results) => {
-        dispatchProductive({type: 'ADD_OR_UPDATE_PRODUCTIVE', data: results.data})
+        dispatchProductive({type: 'ADD_OR_UPDATE_PRODUCTIVE', data: [results.data]})
       })
     }
-  })
-
-  if( Object.keys(props).length === 0) {
-    return <Loading width={200} />
-  }
+  }, [productive, sprintID])
 
   if(userProductiveData === undefined || userProductiveData.length === 0) {
     return(
@@ -63,16 +58,20 @@ export default function ShowProfile({...props}) {
         />
         <CardContent>
           <Typography variant="subtitle1" component="p" color="textSecondary">
-            Productivity: {`${getUserProductivity(userProductiveData[0], getUserTotalWorkLogs(userProductiveData[0]))}%`}
+            Productivity: {`${calcProductivity(userProductiveData[0].kpi.main.done_tickets_estimate_total, userProductiveData[0].total_work_logs)}%`}
           </Typography>
           <Divider variant="fullWidth" style={{marginBottom: '.5rem', marginTop: '.5rem'}} />
-          <Typography variant="body2" component="p" color="textSecondary">Estimated: {TimeFormat(userProductiveData[0].estimate_total) || '-'}</Typography>
-          <Typography variant="body2" component="p" color="textSecondary">Done: {TimeFormat(userProductiveData[0].done_tickets_estimate_total) || '-'}</Typography>
+          <Typography variant="body2" component="p" color="textSecondary">Estimated: {TimeFormat(userProductiveData[0].kpi.main.estimate_total) || '-'}</Typography>
+          <Typography variant="body2" component="p" color="textSecondary">Done: {TimeFormat(userProductiveData[0].kpi.main.done_tickets_estimate_total) || '-'}</Typography>
+          <Typography variant="body2" component="p" color="textSecondary">Sprint Work Logs: {TimeFormat(userProductiveData[0].kpi.main.sprint_work_logs_total) || '-'}</Typography>
           <Typography variant="body2" component="p" color="textSecondary">
-            Work Log: {TimeFormat(getUserTotalWorkLogs(userProductiveData[0]))}
+            Work Log: {TimeFormat(userProductiveData[0].total_work_logs)}
           </Typography>
-          <Typography variant="body2" component="p" color="textSecondary">Carried Over: {TimeFormat(userProductiveData[0].carried_over_logs_total) || '-'}</Typography>
-          <Typography variant="body2" component="p" color="textSecondary">Actual Work: -</Typography>
+          <Divider variant="fullWidth" style={{marginBottom: '.5rem', marginTop: '.5rem'}} />
+          <Typography variant="body2" component="p" color="textSecondary">Carried Over: {TimeFormat(userProductiveData[0].kpi.main.carried_over_logs_total) || '-'}</Typography>
+          <Typography variant="body2" component="p" color="textSecondary">Do Over Total: {TimeFormat(userProductiveData[0].kpi.main.do_over_logs_total) || '-'}</Typography>
+          <Typography variant="body2" component="p" color="textSecondary">Review Total: {TimeFormat(userProductiveData[0].kpi.main.review_time_spend_total) || '-'}</Typography>
+          <Typography variant="body2" component="p" color="textSecondary">Total for Weeks: {TimeFormat(userProductiveData[0].total_for_weeks) || '-'}</Typography>
           <Divider variant="fullWidth" style={{marginBottom: '.5rem', marginTop: '.5rem'}} />
           <Typography variant="body2" component="p" color="textSecondary">Total Tickets: {userTickets.length}</Typography>
         </CardContent>
@@ -84,14 +83,6 @@ export default function ShowProfile({...props}) {
 const getUserProductive = (productive, current_user_id, sprint_id) => {
   return productive.filter((item) => item.user_id === current_user_id && parseInt(item.target_sprint_id) === sprint_id );
 };
-
-const getUserTotalWorkLogs = (productive) => {
-  return productive.sprint_work_logs_total + productive.carried_over_logs_total + productive.do_over_logs_total;
-}
-
-const getUserProductivity = (productive, totalWorkLogs) => {
-  return parseInt(productive.done_tickets_estimate_total / totalWorkLogs * 100, 10) || '-';
-}
 
 ShowProfile.propTypes = {
   id: PropTypes.number.isRequired,
