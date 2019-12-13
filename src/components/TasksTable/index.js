@@ -80,7 +80,7 @@ export default function TaskTable({...props}) {
           </TableCell>
           <TableCell>{row.summary}</TableCell>
           <TableCell>
-            <TasksStatus>{row.status_key}</TasksStatus>
+            <TasksStatus>{row.status.name}</TasksStatus>
           </TableCell>
           <TableCell style={{'whiteSpace': 'nowrap'}} >{TimeFormat(row.original_estimate_seconds)}</TableCell>
           <TableCell style={{'whiteSpace': 'nowrap'}} >{TimeFormat(row.time_spent_seconds)}</TableCell>
