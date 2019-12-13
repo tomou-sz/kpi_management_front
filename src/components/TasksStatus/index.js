@@ -7,8 +7,11 @@ const useStyles = makeStyles({
   statusText: {
     'font-size': '12px',
     'font-weight': 'bold',
+    'overflow': 'hidden',
     'padding': '2px 5px',
-    'text-transform': 'uppercase'
+    'text-transform': 'uppercase',
+    'text-overflow': 'ellipsis',
+    'white-space': 'nowrap'
   },
   status_label: {
     'border': '1px solid',
