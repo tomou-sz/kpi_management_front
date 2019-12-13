@@ -155,7 +155,7 @@ export default function AuthLayout({ children, ...rest }) {
           </IconButton>
         </div>
         <Divider />
-        <Menu/>
+        <Menu {...rest} />
       </Drawer>
       <main className={classes.content}>
         <div className={classes.appBarSpacer} />

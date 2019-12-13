@@ -9,6 +9,8 @@ import StableSort, {getSorting} from '../../utils/StableSort';
 import DefaultConfig from '../../utils/DefaultConfig';
 import TasksStatus from '../../components/TasksStatus/';
 import TasksType from '../../components/TasksType/';
+import UserInfo from '../UserInfo';
+import { FormControl, FormLabel, FormGroup, FormControlLabel, Checkbox } from '@material-ui/core';
 
 const useStyles = makeStyles({
   tableResponsive: {
@@ -20,7 +22,7 @@ const useStyles = makeStyles({
   }
 });
 
-const headerTitle = [
+const headerTitle_non_assignee = [
   {title: 'Key', key: 'key'},
   {title: 'Type', key: 'issuetype'},
   {title: 'Summary', key: 'summary'},
@@ -30,20 +32,40 @@ const headerTitle = [
   {title: 'Remaining Estimate', key: 'remaining_estimate_seconds'}
 ];
 
+const headerTitle_with_assignee = [
+  {title: 'Key', key: 'key'},
+  {title: 'Type', key: 'issuetype'},
+  {title: 'Summary', key: 'summary'},
+  {title: 'Status', key: 'status_key'},
+  {title: 'Original Estimate', key: 'original_estimate_seconds'},
+  {title: 'Time Spent', key: 'time_spent_seconds'},
+  {title: 'Remaining Estimate', key: 'remaining_estimate_seconds'},
+  {title: 'Assignee', key: 'jira_id'},
+];
+
 export default function TaskTable({...props}) {
   const classes = useStyles();
-  const {data, progressing} = props;
+  const {data, progressing, showAssignee, assigneeLink} = props;
   const [order, setOrder] = useState('asc');
   const [orderBy, setOrderBy] = useState('key');
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(DefaultConfig.DEFAULT_ROWS_PER_PAGE[0]);
+  const [typeFilter, setTypeFilter] = React.useState({
+    Task: true,
+    Bug: true,
+    'Sub-task': true,
+  });
+  const filterList = ['Task', 'Bug', 'Sub-task'];
+  const headerTitle = showAssignee ? headerTitle_with_assignee : headerTitle_non_assignee;
+  const selectedFilter = filterList.filter(item => typeFilter[item]);
+  const dataTickets = data.filter(item => selectedFilter.indexOf(item.issuetype) !== -1);
 
   data.map((item) => {
     return item.status_key = item.status.key;
   })
 
   const BodyData = function() {
-    if(data === undefined || progressing) {
+    if(dataTickets === undefined || progressing) {
       return (
         <TableRow>
           <TableCell colSpan={headerTitle.length}>
@@ -52,7 +74,7 @@ export default function TaskTable({...props}) {
           </TableCell>
         </TableRow>
       )
-    } else if (data.length === 0) {
+    } else if (dataTickets.length === 0) {
       return (
         <TableRow>
           <TableCell colSpan={headerTitle.length}>
@@ -61,7 +83,19 @@ export default function TaskTable({...props}) {
         </TableRow>
       )
     } else {
-      return StableSort(data, getSorting(order, orderBy)).slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row, idx) => {
+      return StableSort(dataTickets, getSorting(order, orderBy))
+        .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+        .map((row, idx) => {
+        const Assignee = () => {
+          if(showAssignee) {
+            return (
+              <TableCell>
+                <UserInfo {...row} id={row.user_id} useLink={assigneeLink}/>
+              </TableCell>
+            );
+          }
+          return false;
+        }
         return (<TableRow key={idx} className={(row.time_spent_seconds > row.original_estimate_seconds) ? classes.dark_bg : ''}>
           <TableCell>
             <Typography
@@ -85,6 +119,7 @@ export default function TaskTable({...props}) {
           <TableCell style={{'whiteSpace': 'nowrap'}} >{TimeFormat(row.original_estimate_seconds)}</TableCell>
           <TableCell style={{'whiteSpace': 'nowrap'}} >{TimeFormat(row.time_spent_seconds)}</TableCell>
           <TableCell style={{'whiteSpace': 'nowrap'}} >{TimeFormat(row.remaining_estimate_seconds)}</TableCell>
+          <Assignee />
         </TableRow>);
       })
     }
@@ -105,8 +140,30 @@ export default function TaskTable({...props}) {
     setPage(0);
   };
 
+  const handleChange = (name) => (event) => {
+    setTypeFilter({ ...typeFilter, [name]: event.target.checked });
+  };
+
   return(
     <>
+      <div>
+        <FormControl>
+          <FormGroup row style={{ 'justifyContent': 'center', 'alignItems': 'center' }} >
+            <FormLabel component="legend" style={{ 'paddingLeft': '10px', 'paddingRight': '10px' }}>Type Filter: </FormLabel>
+            {
+              filterList.map((item, idx) => {
+                return (
+                  <FormControlLabel
+                    key={idx}
+                    control={<Checkbox color="primary" checked={typeFilter[item]} onChange={handleChange(item)} value={item} />}
+                    label={`${item} (${data.filter(issue => issue.issuetype === item).length})`}
+                  />
+                );
+              })
+            }
+          </FormGroup>
+        </FormControl>
+      </div>
       <div className={classes.tableResponsive}>
         <Table stickyHeader >
           <TableHead>
@@ -136,7 +193,7 @@ export default function TaskTable({...props}) {
       <TablePagination
         rowsPerPageOptions={DefaultConfig.DEFAULT_ROWS_PER_PAGE}
         component="div"
-        count={data ? data.length : 0}
+        count={dataTickets ? dataTickets.length : 0}
         rowsPerPage={rowsPerPage}
         page={page}
         onChangePage={handleChangePage}
@@ -146,7 +203,16 @@ export default function TaskTable({...props}) {
   );
 }
 
+TaskTable.defaultProps = {
+  data: [],
+  progressing: false,
+  showAssignee: false,
+  assigneeLink: true,
+}
+
 TaskTable.propTypes = {
   data: PropTypes.array.isRequired,
-  progressing: PropTypes.bool
+  progressing: PropTypes.bool,
+  showAssignee: PropTypes.bool,
+  assigneeLink: PropTypes.bool,
 };

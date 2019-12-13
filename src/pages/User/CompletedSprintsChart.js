@@ -1,4 +1,4 @@
-import React, {useContext, useEffect} from 'react';
+import React, {useContext, useEffect, useRef} from 'react';
 import { Chart } from "react-google-charts";
 import PropTypes from 'prop-types';
 import Box from '@material-ui/core/Box';
@@ -18,6 +18,7 @@ export default function CompletedSprintsChart({...props}) {
   const completedSprints = getCompletedSprints(boardSprints).map(item => item.id);
   const completedData = productive.filter(item => completedSprints.indexOf(parseInt(item.target_sprint_id)) !== -1 && item.user_id === id);
   const source = CancelToken.source();
+  const componentIsMounted = useRef(true);
 
   useEffect(() => {
     let promises = completedSprints.map((sprint_id) => {
@@ -27,14 +28,17 @@ export default function CompletedSprintsChart({...props}) {
       })
     });
     Promise.all(promises).then(results => {
-      dispatchProductive({type: 'ADD_OR_UPDATE_PRODUCTIVE', data: results})
+      if( componentIsMounted.current ) {
+        dispatchProductive({type: 'ADD_OR_UPDATE_PRODUCTIVE', data: results})
+      }
     });
 
     return (() => {
-      source.cancel()
-    })
+      source.cancel();
+      componentIsMounted.current = false;
+    });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+  }, []);
 
   const ChartRender = () => {
     if(completedData.length >= PREV_SPRINT) {

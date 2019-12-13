@@ -1,4 +1,4 @@
-import React, { useState, useContext, useEffect } from 'react';
+import React, { useState, useContext, useEffect, useRef } from 'react';
 import { useParams } from "react-router-dom";
 import Grid from '@material-ui/core/Grid';
 import Button from '@material-ui/core/Button';
@@ -43,18 +43,24 @@ export default function User() {
   const { users: [users],
     boardSprints: [boardSprints, setBoardSprints] } = useContext(KPIStoreContext);
   const user = users.filter((item) => item.id === Number(id))[0];
+  const componentIsMounted = useRef(true);
 
   useEffect(() => {
     if(boardSprints.length === 0) {
       GetSprints()
       .then((results) => {
-        setBoardSprints(results.data)
-      })
+        if(componentIsMounted.current) {
+          setBoardSprints(results.data);
+        }
+      });
     } else if(sprint === -1) {
       setSprint(boardSprints.filter((item) => item.state === 'active')[0].id)
     }
+    return(() => {
+      componentIsMounted.current = false;
+    });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [boardSprints])
+  }, [boardSprints]);
 
   if(boardSprints.length === 0 || sprint === null) {
     return <Loading width={'100%'} />
@@ -69,7 +75,7 @@ export default function User() {
   }
 
   const handleChange = () => event => {
-    setSprint(parseInt(event.target.value))
+    setSprint(parseInt(event.target.value));
   };
 
   return(
@@ -93,7 +99,7 @@ export default function User() {
             </div>
           </Grid>
         </Grid>
-        {<TasksSection userid={user.id} sprintID={sprint} reload={reloadComponent} />}
+        {<TasksSection {...user} user_id={user.id} sprintID={sprint} reload={reloadComponent} />}
       </Grid>
     </Grid>
   );

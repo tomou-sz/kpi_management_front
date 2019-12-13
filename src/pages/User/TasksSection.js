@@ -1,64 +1,67 @@
-import React, {useEffect, useContext, useState} from 'react';
+import React, {useEffect, useContext, useState, useRef} from 'react';
 import Paper from '@material-ui/core/Paper';
 import TasksTable from '../../components/TasksTable';
-import GetTasks from '../../utils/GetTasks.js';
+import GetTasks, { IncludeUserInfo } from '../../utils/GetTasks.js';
 import { KPIStoreContext } from '../../contexts/KPIStore.js';
 import PropTypes from 'prop-types';
 import { CancelToken } from 'axios';
 
 export default function TasksSession({...props}) {
-  const {userid, sprintID, reload} = props;
+  const {jira_id, user_id, sprintID, reload, position} = props;
   const [loading, setLoading] = useState(true);
   const { tickets: [tickets, dispatchTickets] } = useContext(KPIStoreContext);
-  const assignTickets = tickets.filter((item) => item.user_id === userid && item.sprint_ids.indexOf(sprintID.toString()) !== -1);
+  const assignTickets = tickets.filter((item) => item.user_id === user_id && item.sprint_ids.indexOf(sprintID.toString()) !== -1);
   const source = CancelToken.source();
+  const componentIsMounted = useRef(true);
 
   const fetchTasks = () => {
-    setLoading(true)
-    GetTasks(userid, sprintID, { cancelToken: source.token }).then((results) => {
+    setLoading(true);
+    GetTasks(user_id, sprintID, { cancelToken: source.token }).then((results) => {
       const ticketsMap = results.data.sprint_tickets.map((item) => {
-        item.user_id = userid;
-        return item;
+        return IncludeUserInfo(item, {user_id: user_id, jira_id: jira_id, position: position});
       });
-      dispatchTickets({type: 'ADD_OR_UPDATE_TICKETS', data: ticketsMap})
-      setLoading(false);
-    })
-    .catch((error) => {
-      // TODO: implement Snackbar component in the future
+      if(componentIsMounted.current) {
+        dispatchTickets({type: 'ADD_OR_UPDATE_TICKETS', data: ticketsMap});
+        setLoading(false);
+      }
     })
     .finally(() => {
-      setLoading(false)
+      if(componentIsMounted.current) {
+        setLoading(false);
+      }
     });
   };
 
   useEffect(() => {
+    componentIsMounted.current = true;
     if(sprintID !== -1) {
-      fetchTasks()
+      fetchTasks();
     }
     return (() => {
       source.cancel();
-    })
+      componentIsMounted.current = false;
+    });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [userid, reload]);
+  }, [user_id, reload]);
 
   useEffect(() => {
     if(assignTickets.length !== 0) {
-      setLoading(false)
+      setLoading(false);
     } else if(sprintID !== -1) {
-      fetchTasks()
+      fetchTasks();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [sprintID]);
 
   return (
     <Paper style={{marginBottom: '1rem'}}>
-      <TasksTable progressing={loading} data={assignTickets} />
+      <TasksTable progressing={loading} data={assignTickets} showAssignee={false} />
     </Paper>
   );
 }
 
 TasksSession.propTypes = {
-  userid: PropTypes.number.isRequired,
+  user_id: PropTypes.number.isRequired,
   sprintID: PropTypes.number.isRequired,
   reload: PropTypes.number
 };

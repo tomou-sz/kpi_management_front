@@ -1,14 +1,12 @@
 import React, { useState } from 'react';
-import { Link } from "react-router-dom";
 import {Table, TableBody, TableCell, TableHead, TableRow, TableSortLabel} from '@material-ui/core';
 import PropTypes from 'prop-types';
 import Typography from '@material-ui/core/Typography';
 import Skeleton from '@material-ui/lab/Skeleton';
 import TimeFormat from '../../utils/TimeFormat';
-import { makeStyles, withStyles } from '@material-ui/core/styles';
+import { makeStyles } from '@material-ui/core/styles';
 import StableSort, {getSorting} from '../../utils/StableSort';
-import Tooltip from '@material-ui/core/Tooltip';
-import { getTeam } from '../../components/TeamMember';
+import UserInfo from '../../components/UserInfo';
 import { calcProductivity } from '../../utils/GetProductivity';
 
 const useStyles = makeStyles({
@@ -88,17 +86,7 @@ export default function ProductiveTable({...props}) {
           <TableCell
             style={{'whiteSpace': 'nowrap'}}
           >
-            <HtmlTooltip
-              placement="top-start"
-              title={
-                <>
-                  <Typography color="inherit">{row.name}</Typography>
-                  <em>{`${getTeam(row.jira_id)} - ${row.position}`}</em>
-                </>
-              }
-            >
-              <Typography variant="subtitle1" component={Link} to={`/user/${row.id}`}>{row.name}</Typography>
-            </HtmlTooltip>
+            <UserInfo {...row}/>
           </TableCell>
           {headerTitle.map((item, headerIndex) => {
             if(item.manualTableCell) {
@@ -199,16 +187,6 @@ export default function ProductiveTable({...props}) {
     </>
   );
 }
-
-const HtmlTooltip = withStyles(theme => ({
-  tooltip: {
-    backgroundColor: '#f5f5f9',
-    color: 'rgba(0, 0, 0, 0.87)',
-    maxWidth: 220,
-    fontSize: theme.typography.pxToRem(12),
-    border: '1px solid #dadde9',
-  },
-}))(Tooltip);
 
 const convertData = (data) => {
   return data.map((item) => {

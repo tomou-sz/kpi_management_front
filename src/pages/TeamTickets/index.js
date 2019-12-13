@@ -10,7 +10,8 @@ import GetSprints from '../../utils/GetSprints';
 import TasksTable from '../../components/TasksTable';
 import Paper from '@material-ui/core/Paper';
 import { makeStyles } from '@material-ui/core/styles';
-import GetTasks from '../../utils/GetTasks.js';
+import GetTasks, { IncludeUserInfo } from '../../utils/GetTasks.js';
+import GetUser from '../../utils/GetUser.js';
 import { CancelToken } from 'axios';
 
 const useStyles = makeStyles(theme => ({
@@ -29,11 +30,12 @@ export default function TeamTickets() {
   const [teamSelector, setTeamSelector] = useState(DefaultConfig.TEAM_LIST[0].name);
   const [reloadComponent, setReloadComponent] = useState(0);
   const prevReloadState = useRef(reloadComponent);
-  const { users: [users],
+  const { users: [users, setUsers],
     boardSprints: [boardSprints, setBoardSprints],
     tickets: [tickets, dispatchTickets] } = useContext(KPIStoreContext);
   const teamIds = users.filter(item => DefaultConfig[teamSelector].indexOf(item.jira_id) !== -1).map(item => item.id);
-  const filterTask = tickets.filter(item => teamIds.indexOf(item.user_id) !== -1 && item.sprint_ids.indexOf(sprint.toString()) !== -1);
+  const filterTask = tickets.filter(item => teamIds.indexOf(item.user_id) !== -1 &&
+    item.sprint_ids.indexOf(sprint.toString()) !== -1 );
 
   useEffect(() => {
     const isReload = prevReloadState.current !== reloadComponent;
@@ -44,6 +46,13 @@ export default function TeamTickets() {
       });
     } else if(sprint === -1) {
       setSprint(boardSprints.filter((item) => item.state === 'active')[0].id);
+    }
+
+    if(users.length === 0) {
+      GetUser({ cancelToken: source.token })
+      .then((results) => {
+        setUsers(results.data);
+      });
     }
 
     if(filterTask.length === 0 && sprint !== -1 && !isReload) {
@@ -59,13 +68,12 @@ export default function TeamTickets() {
           const data = results[i];
           for(var j = 0; j < data.sprint_tickets.length; j += 1) {
             const item = data.sprint_tickets[j];
-            item.user_id = data.user_id;
-            item.jira_id = data.jira_id;
-            tickets.push(item);
+            const currentUser = users.filter(item => item.id === data.user_id);
+            tickets.push(IncludeUserInfo(item, {user_id: data.user_id, jira_id: data.jira_id, position: currentUser[0].position}));
           }
         }
         if(tickets.length !== 0) {
-          dispatchTickets({type: 'ADD_OR_UPDATE_TICKETS', data: tickets})
+          dispatchTickets({type: 'ADD_OR_UPDATE_TICKETS', data: tickets});
         }
         setLoading(false);
       });
@@ -74,9 +82,12 @@ export default function TeamTickets() {
     }
 
     if(isReload) {
-      dispatchTickets({type: 'REMOVE_TICKETS', filter: () => {
-        return false;
-      }})
+      dispatchTickets({type: 'REMOVE_TICKETS', filter: (item) => {
+        if(teamIds.indexOf(item.user_id) !== -1) {
+          return item.sprint_ids.indexOf(sprint.toString()) === -1;
+        }
+        return true;
+      }});
     }
 
     prevReloadState.current = reloadComponent;
@@ -84,7 +95,7 @@ export default function TeamTickets() {
       source.cancel();
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [boardSprints, sprint, teamSelector, tickets, reloadComponent]);
+  }, [users, boardSprints, sprint, teamSelector, tickets, reloadComponent]);
 
   const handleChangeSprint = () => event => {
     setSprint(parseInt(event.target.value));
@@ -118,7 +129,7 @@ export default function TeamTickets() {
       </Select>
       <SelectSprint value={sprint} onChange={handleChangeSprint()}/>
       <Paper style={{marginBottom: '1rem'}}>
-        <TasksTable progressing={loading} data={filterTask} />
+        <TasksTable progressing={loading} data={filterTask} showAssignee />
       </Paper>
     </div>
   );
