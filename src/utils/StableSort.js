@@ -12,6 +12,11 @@ export function getSorting(order, orderBy) {
   return order === 'desc' ? (a, b) => desc(a, b, orderBy) : (a, b) => -desc(a, b, orderBy);
 }
 
+export function getNestedObject(nestedObj, pathArr) {
+  return pathArr.reduce((obj, key) =>
+    (obj && obj[key] !== 'undefined') ? obj[key] : undefined, nestedObj);
+}
+
 export function desc(a, b, orderBy) {
   if (b[orderBy] < a[orderBy]) {
     return -1;
