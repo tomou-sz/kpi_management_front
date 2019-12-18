@@ -38,6 +38,10 @@ export default function TaskTable({...props}) {
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(DefaultConfig.DEFAULT_ROWS_PER_PAGE[0]);
 
+  data.map((item) => {
+    return item.status_key = item.status.key;
+  })
+
   const BodyData = function() {
     if(data === undefined || progressing) {
       return (
