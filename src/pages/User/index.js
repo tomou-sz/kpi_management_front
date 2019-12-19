@@ -54,7 +54,7 @@ export default function User() {
         }
       });
     } else if(sprint === -1) {
-      setSprint(boardSprints.filter((item) => item.state === 'active')[0].id)
+      setSprint(boardSprints.filter((item) => item.state === 'active')[0].id);
     }
     return(() => {
       componentIsMounted.current = false;
@@ -81,10 +81,18 @@ export default function User() {
   return(
     <Grid container spacing={3}>
       <Grid item xs={12} md={3} className={classes.order_2} >
-        <ShowProfile {...user} sprintID={sprint}/>
-        <ProductiveChart {...user} />
-        <CompletedSprintsChart {...user} />
-        <LogChart {...user} />
+        {
+          (sprint === -1 || boardSprints.length === 0) ?
+          ''
+          : (
+            <>
+              <ShowProfile {...user} sprintID={sprint}/>
+              <ProductiveChart {...user} />
+              <CompletedSprintsChart {...user} />
+              <LogChart {...user} />
+            </>
+          )
+        }
       </Grid>
       <Grid item xs={12} md={9} className={classes.order_1} >
         <Grid container spacing={3}>
@@ -99,7 +107,7 @@ export default function User() {
             </div>
           </Grid>
         </Grid>
-        {<TasksSection {...user} user_id={user.id} sprintID={sprint} reload={reloadComponent} />}
+        <TasksSection {...user} user_id={user.id} sprintID={sprint} reload={reloadComponent} />
       </Grid>
     </Grid>
   );

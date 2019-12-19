@@ -19,9 +19,9 @@ export default function UserInfo({...props}) {
       }
     >
       {useLink ? (
-        <Typography variant="subtitle1" component={Link} to={`/user/${id}`}>{name === '' ? id : name}</Typography>
+        <Typography noWrap display='block' variant="subtitle1" component={Link} to={`/user/${id}`}>{name === '' ? id : name}</Typography>
       ) : (
-        <Typography variant="subtitle1">{name === '' ? id : name}</Typography>
+        <Typography noWrap display='block' variant="subtitle1">{name === '' ? id : name}</Typography>
       )}
     </HtmlTooltip>
   );

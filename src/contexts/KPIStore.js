@@ -11,6 +11,9 @@ export default ({ children }) => {
   const [tickets, dispatchTickets] = useReducer(TicketsReducer, initTickets);
   const [boardSprints, setBoardSprints] = useState([]);
   const [productive, dispatchProductive] = useReducer(ProductiveReducer, initProductive);
+  const [setting, setSetting] = useState({
+    layout: false,
+  });
 
   const store = {
     workLogs: [workLogs, setWorkLogs],
@@ -18,6 +21,7 @@ export default ({ children }) => {
     tickets: [tickets, dispatchTickets],
     boardSprints: [boardSprints, setBoardSprints],
     productive: [productive, dispatchProductive],
+    setting: [setting, setSetting],
   };
 
   return (<KPIStoreContext.Provider value={store}>{children}</KPIStoreContext.Provider>);

@@ -9,26 +9,40 @@ import NotFound from '../../components/NotFound';
 import { Divider } from "@material-ui/core";
 import { KPIStoreContext } from '../../contexts/KPIStore';
 import GetSprints from '../../utils/GetSprints';
+import GetUser from '../../utils/GetUser.js';
 import SelectSprint from '../../components/SelectSprint';
 import ProductiveSection from './ProductiveSection';
 import DefaultConfig from '../../utils/DefaultConfig';
+import { CancelToken } from 'axios';
 
 export default function Productivities() {
   const [sprint, setSprint] = useState(-1);
-  const { boardSprints: [boardSprints, setBoardSprints] } = useContext(KPIStoreContext);
+  const source = CancelToken.source();
+  const { users: [users, setUsers],
+    boardSprints: [boardSprints, setBoardSprints] } = useContext(KPIStoreContext);
   const [reloadComponent, setReloadComponent] = useState(0);
 
   useEffect(() => {
     if(boardSprints.length === 0) {
-      GetSprints()
+      GetSprints({ cancelToken: source.token })
       .then((results) => {
         setBoardSprints(results.data)
       })
     } else if(sprint === -1) {
       setSprint(boardSprints.filter((item) => item.state === 'active')[0].id)
     }
+
+    if(users.length === 0) {
+      GetUser({ cancelToken: source.token })
+      .then((results) => {
+        setUsers(results.data);
+      });
+    }
+    return (() => {
+      source.cancel();
+    });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [boardSprints])
+  }, [users, boardSprints])
 
   if(boardSprints.length === 0 || sprint === null) {
     return <Loading width={'100%'} />

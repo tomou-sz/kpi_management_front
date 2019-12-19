@@ -86,7 +86,7 @@ export default function ProductiveTable({...props}) {
           <TableCell
             style={{'whiteSpace': 'nowrap'}}
           >
-            <UserInfo {...row}/>
+            {!!row.id ? <UserInfo {...row}/> : ''}
           </TableCell>
           {headerTitle.map((item, headerIndex) => {
             if(item.manualTableCell) {

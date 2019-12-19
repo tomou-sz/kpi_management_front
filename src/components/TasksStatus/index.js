@@ -50,7 +50,7 @@ export default function TasksStatus({...props}) {
     }
   }
   return (
-    <Tooltip className={renderStatus(props.children.toLowerCase())} title={props.children}>
+    <Tooltip {...props} className={renderStatus(props.children.toLowerCase())} title={props.children}>
       <span className={`${classes.statusText} ${classes.text_nowrap}`}>{props.children}</span>
     </Tooltip>
   );

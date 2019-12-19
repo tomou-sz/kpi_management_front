@@ -20,9 +20,12 @@ export default function ShowProfile({...props}) {
 
   useEffect(() => {
     if( userProductiveData === undefined || userProductiveData.length === 0 ) {
-      GetProductivity(id, sprintID).then((results) => {
-        dispatchProductive({type: 'ADD_OR_UPDATE_PRODUCTIVE', data: [results.data]})
-      })
+      GetProductivity(id, sprintID).then(results => {
+        const productivity = results.data;
+        return Object.assign(productivity, props);
+      }).then(results => {
+        dispatchProductive({type: 'ADD_OR_UPDATE_PRODUCTIVE', data: [results]});
+      });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [productive, sprintID])

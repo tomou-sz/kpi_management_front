@@ -6,7 +6,7 @@ import { KPIStoreContext } from '../../contexts/KPIStore';
 import DefaultConfig from '../../utils/DefaultConfig';
 import { CancelToken } from 'axios';
 
-export default function Dashboard({...props}) {
+export default function ProductiveSection({...props}) {
   const {sprint_id, reload, name} = props;
   const { users: [users],
   productive: [productive, dispatchProductive] } = useContext(KPIStoreContext);

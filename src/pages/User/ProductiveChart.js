@@ -11,7 +11,7 @@ import { CancelToken } from 'axios';
 const PREV_SPRINT = 6;
 
 export default function ProductiveChart({...props}) {
-  const { id, name } = props;
+  const { id } = props;
   const { productive: [productive, dispatchProductive],
     boardSprints: [boardSprints] } = useContext(KPIStoreContext);
   const completedSprints = getCompletedSprints(boardSprints).map(item => item.id);
@@ -23,7 +23,7 @@ export default function ProductiveChart({...props}) {
     let promises = completedSprints.map((sprint_id) => {
       return GetProductivity(id, sprint_id, { cancelToken: source.token }).then(results => {
         const productivity = results.data;
-        return Object.assign(productivity, {id: id, name: name});
+        return Object.assign(productivity, props);
       });
     });
     Promise.all(promises).then(results => {
@@ -43,7 +43,7 @@ export default function ProductiveChart({...props}) {
       let chartData = StableSort(completedData, getSorting('asc', 'target_sprint_id')).map(item => {
         const total_work_logs = item.total_work_logs;
         const productivity = calcProductivity(item.kpi.main.done_tickets_estimate_total, total_work_logs);
-        return [item.target_sprint_id, productivity]
+        return [item.target_sprint_id, productivity];
       });
 
       // Add table header to worklog

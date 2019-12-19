@@ -3,6 +3,10 @@ import ReactDOM from 'react-dom';
 import { BrowserRouter } from 'react-router-dom';
 import App from './App';
 import * as serviceWorker from './serviceWorker';
+import VersionApp from './VersionApp';
+
+// Check version app before use localStorage
+VersionApp();
 
 ReactDOM.render(
   <BrowserRouter>

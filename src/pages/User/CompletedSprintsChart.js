@@ -12,7 +12,7 @@ import { CancelToken } from 'axios';
 const PREV_SPRINT = 6;
 
 export default function CompletedSprintsChart({...props}) {
-  const { id, name } = props;
+  const { id } = props;
   const { productive: [productive, dispatchProductive],
     boardSprints: [boardSprints] } = useContext(KPIStoreContext);
   const completedSprints = getCompletedSprints(boardSprints).map(item => item.id);
@@ -24,7 +24,7 @@ export default function CompletedSprintsChart({...props}) {
     let promises = completedSprints.map((sprint_id) => {
       return GetProductivity(id, sprint_id, { cancelToken: source.token }).then(results => {
         const productivity = results.data;
-        return Object.assign(productivity, {id: id, name: name});
+        return Object.assign(productivity, props);
       })
     });
     Promise.all(promises).then(results => {
