@@ -24,6 +24,7 @@ export default function ShowProfile({...props}) {
         dispatchProductive({type: 'ADD_OR_UPDATE_PRODUCTIVE', data: [results.data]})
       })
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [productive, sprintID])
 
   if(userProductiveData === undefined || userProductiveData.length === 0) {
