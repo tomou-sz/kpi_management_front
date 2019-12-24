@@ -79,12 +79,10 @@ export default function TicketsLabel({...props}) {
   }
 
   return(
-    <div>
-      <>
-        {renderLabel()}
-        {renderTitle()}
-      </>
-    </div>
+    <>
+      {renderLabel()}
+      {renderTitle()}
+    </>
   );
 }
 
