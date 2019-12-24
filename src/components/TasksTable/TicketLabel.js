@@ -4,6 +4,7 @@ import TasksType from '../../components/TasksType/';
 import {Card, CardActionArea, CardContent} from '@material-ui/core';
 import Typography from '@material-ui/core/Typography';
 import UserInfo from '../UserInfo';
+import TicketsLabel from '../../components/TicketsLabel';
 
 export default function TicketLabel({...props}) {
   const {ticket_key, status, summary, issuetype, user_id} = props;
@@ -31,7 +32,7 @@ export default function TicketLabel({...props}) {
             color='textSecondary'
             gutterBottom
           >
-            {summary}
+            <TicketsLabel>{summary}</TicketsLabel>
           </Typography>
           <TasksStatus>{status.name}</TasksStatus>
         </CardContent>
