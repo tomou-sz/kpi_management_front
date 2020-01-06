@@ -10,6 +10,7 @@ import { KPIStoreContext } from '../../contexts/KPIStore';
 import TimeFormat from '../../utils/TimeFormat';
 import {getTeam} from '../../components/TeamMember';
 import { calcProductivity } from '../../utils/GetProductivity';
+import axios, { CancelToken } from 'axios';
 
 export default function ShowProfile({...props}) {
   const {id, name, position, sprintID, jira_id} = props;
@@ -17,13 +18,24 @@ export default function ShowProfile({...props}) {
     productive: [productive, dispatchProductive] } = useContext(KPIStoreContext);
   const userTickets = tickets.filter((item) => item.user_id === id && item.sprint_ids.indexOf(sprintID.toString()) !== -1);
   const userProductiveData = getUserProductive(productive, id, sprintID);
+  const source = CancelToken.source();
 
   useEffect(() => {
     if( userProductiveData === undefined || userProductiveData.length === 0 ) {
-      GetProductivity(id, sprintID).then((results) => {
-        dispatchProductive({type: 'ADD_OR_UPDATE_PRODUCTIVE', data: [results.data]})
-      })
+      GetProductivity(id, sprintID, { cancelToken: source.token }).then(results => {
+        const productivity = results.data;
+        return Object.assign(productivity, props);
+      }).then(results => {
+        dispatchProductive({type: 'ADD_OR_UPDATE_PRODUCTIVE', data: [results]});
+      }).catch((e) => {
+        if (!axios.isCancel(e)) {
+          console.log("Error: ", e);
+        }
+      });
     }
+    return (() => {
+      source.cancel();
+    });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [productive, sprintID])
 

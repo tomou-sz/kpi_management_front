@@ -7,6 +7,7 @@ import Users from '../pages/Users';
 import SignIn from '../pages/SignIn';
 import User from '../pages/User';
 import Productivities from '../pages/Productivities';
+import TeamTickets from '../pages/TeamTickets';
 
 export default function Routes() {
   return (
@@ -17,6 +18,7 @@ export default function Routes() {
       <Route path="/users" component={Users} isPrivate title='Member List' />
       <Route path="/user/:id" component={User} isPrivate title='Member' />
       <Route path="/productivities" component={Productivities} isPrivate title='Productivities' />
+      <Route path="/team_tickets" component={TeamTickets} isPrivate title='Team Tickets' />
 
       {/* redirect user to SignIn page if route does not exist and user is not authenticated */}
       <Route component={SignIn} />

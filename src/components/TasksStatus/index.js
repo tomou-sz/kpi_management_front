@@ -29,6 +29,9 @@ const useStyles = makeStyles({
     'background-color': '#42526e',
     'border-color': '#42526e',
     'color': '#fff'
+  },
+  text_nowrap: {
+    'white-space': 'nowrap',
   }
 })
 
@@ -47,8 +50,8 @@ export default function TasksStatus({...props}) {
     }
   }
   return (
-    <Tooltip className={renderStatus(props.children.toLowerCase())} title={props.children}>
-      <span className={classes.statusText}>{props.children}</span>
+    <Tooltip {...props} className={renderStatus(props.children.toLowerCase())} title={props.children}>
+      <span className={`${classes.statusText} ${classes.text_nowrap}`}>{props.children}</span>
     </Tooltip>
   );
 }

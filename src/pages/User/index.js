@@ -1,4 +1,4 @@
-import React, { useState, useContext, useEffect } from 'react';
+import React, { useState, useContext, useEffect, useRef } from 'react';
 import { useParams } from "react-router-dom";
 import Grid from '@material-ui/core/Grid';
 import Button from '@material-ui/core/Button';
@@ -39,22 +39,28 @@ export default function User() {
   const classes = useStyles();
   const { id } = useParams();
   const [reloadComponent, setReloadComponent] = useState(0);
-  const [sprint, setSprint] = useState(null);
+  const [sprint, setSprint] = useState(-1);
   const { users: [users],
     boardSprints: [boardSprints, setBoardSprints] } = useContext(KPIStoreContext);
   const user = users.filter((item) => item.id === Number(id))[0];
+  const componentIsMounted = useRef(true);
 
   useEffect(() => {
     if(boardSprints.length === 0) {
       GetSprints()
       .then((results) => {
-        setBoardSprints(results.data)
-      })
-    } else {
-      setSprint(boardSprints.filter((item) => item.state === 'active')[0].id)
+        if(componentIsMounted.current) {
+          setBoardSprints(results.data);
+        }
+      });
+    } else if(sprint === -1) {
+      setSprint(boardSprints.filter((item) => item.state === 'active')[0].id);
     }
+    return(() => {
+      componentIsMounted.current = false;
+    });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [boardSprints])
+  }, [boardSprints]);
 
   if(boardSprints.length === 0 || sprint === null) {
     return <Loading width={'100%'} />
@@ -69,16 +75,24 @@ export default function User() {
   }
 
   const handleChange = () => event => {
-    setSprint(parseInt(event.target.value))
+    setSprint(parseInt(event.target.value));
   };
 
   return(
     <Grid container spacing={3}>
       <Grid item xs={12} md={3} className={classes.order_2} >
-        <ShowProfile {...user} sprintID={sprint}/>
-        <ProductiveChart {...user} />
-        <CompletedSprintsChart {...user} />
-        <LogChart {...user} />
+        {
+          (sprint === -1 || boardSprints.length === 0) ?
+          ''
+          : (
+            <>
+              <ShowProfile {...user} sprintID={sprint}/>
+              <ProductiveChart {...user} />
+              <CompletedSprintsChart {...user} />
+              <LogChart {...user} />
+            </>
+          )
+        }
       </Grid>
       <Grid item xs={12} md={9} className={classes.order_1} >
         <Grid container spacing={3}>
@@ -93,7 +107,7 @@ export default function User() {
             </div>
           </Grid>
         </Grid>
-        {<TasksSection userid={user.id} sprintID={sprint} reload={reloadComponent} />}
+        <TasksSection {...user} user_id={user.id} sprintID={sprint} reload={reloadComponent} />
       </Grid>
     </Grid>
   );

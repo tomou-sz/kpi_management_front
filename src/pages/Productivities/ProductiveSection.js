@@ -4,9 +4,9 @@ import GetProductivity from '../../utils/GetProductivity';
 import ProductiveTable from '../../components/ProductiveTable';
 import { KPIStoreContext } from '../../contexts/KPIStore';
 import DefaultConfig from '../../utils/DefaultConfig';
-import { CancelToken } from 'axios';
+import axios, { CancelToken } from 'axios';
 
-export default function Dashboard({...props}) {
+export default function ProductiveSection({...props}) {
   const {sprint_id, reload, name} = props;
   const { users: [users],
   productive: [productive, dispatchProductive] } = useContext(KPIStoreContext);
@@ -27,19 +27,23 @@ export default function Dashboard({...props}) {
           const productivity = results.data;
           const currentUser = users.filter(item => item.jira_id === productivity.jira_id)[0];
           return Object.assign(productivity, currentUser);
-        })
+        });
       });
       Promise.all(promises).then(results => {
-        dispatchProductive({type: 'ADD_OR_UPDATE_PRODUCTIVE', data: results})
+        dispatchProductive({type: 'ADD_OR_UPDATE_PRODUCTIVE', data: results});
+      }).catch((e) => {
+        if (!axios.isCancel(e)) {
+          console.log("Error: ", e);
+        }
       });
     }
 
     prevReloadState.current = reload;
     return (() => {
-      source.cancel()
-    })
+      source.cancel();
+    });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [sprint_id, reload])
+  }, [sprint_id, reload]);
 
   return (
     <Paper style={{marginBottom: '1rem'}}>

@@ -1,4 +1,4 @@
-import React, {useContext, useEffect} from 'react';
+import React, {useContext, useEffect, useRef} from 'react';
 import { Chart } from "react-google-charts";
 import PropTypes from 'prop-types';
 import Box from '@material-ui/core/Box';
@@ -7,34 +7,42 @@ import Loading from '../../components/Loading';
 import GetProductivity from '../../utils/GetProductivity';
 import StableSort, { getSorting } from '../../utils/StableSort';
 import { getHour } from '../../utils/TimeFormat';
-import { CancelToken } from 'axios';
+import axios, { CancelToken } from 'axios';
 
 const PREV_SPRINT = 6;
 
 export default function CompletedSprintsChart({...props}) {
-  const { id, name } = props;
+  const { id } = props;
   const { productive: [productive, dispatchProductive],
     boardSprints: [boardSprints] } = useContext(KPIStoreContext);
   const completedSprints = getCompletedSprints(boardSprints).map(item => item.id);
   const completedData = productive.filter(item => completedSprints.indexOf(parseInt(item.target_sprint_id)) !== -1 && item.user_id === id);
   const source = CancelToken.source();
+  const componentIsMounted = useRef(true);
 
   useEffect(() => {
     let promises = completedSprints.map((sprint_id) => {
       return GetProductivity(id, sprint_id, { cancelToken: source.token }).then(results => {
         const productivity = results.data;
-        return Object.assign(productivity, {id: id, name: name});
-      })
+        return Object.assign(productivity, props);
+      });
     });
     Promise.all(promises).then(results => {
-      dispatchProductive({type: 'ADD_OR_UPDATE_PRODUCTIVE', data: results})
+      if( componentIsMounted.current ) {
+        dispatchProductive({type: 'ADD_OR_UPDATE_PRODUCTIVE', data: results});
+      }
+    }).catch((e) => {
+      if (!axios.isCancel(e)) {
+        console.log("Error: ", e);
+      }
     });
 
     return (() => {
-      source.cancel()
-    })
+      source.cancel();
+      componentIsMounted.current = false;
+    });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+  }, []);
 
   const ChartRender = () => {
     if(completedData.length >= PREV_SPRINT) {

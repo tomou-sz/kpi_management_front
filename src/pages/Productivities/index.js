@@ -9,34 +9,48 @@ import NotFound from '../../components/NotFound';
 import { Divider } from "@material-ui/core";
 import { KPIStoreContext } from '../../contexts/KPIStore';
 import GetSprints from '../../utils/GetSprints';
+import GetUser from '../../utils/GetUser.js';
 import SelectSprint from '../../components/SelectSprint';
 import ProductiveSection from './ProductiveSection';
-
-
-const TeamList = [
-  {title: 'Frontend', name: 'TEAM_FE'},
-  {title: 'Frontend - Design', name: 'TEAM_FE_DESIGN'},
-  {title: 'Backend', name: 'TEAM_BE'},
-  {title: 'Infrastructure', name: 'TEAM_INF'},
-  {title: 'QC/QA', name: 'TEAM_QC'},
-];
+import DefaultConfig from '../../utils/DefaultConfig';
+import axios, { CancelToken } from 'axios';
 
 export default function Productivities() {
-  const [sprint, setSprint] = useState(null);
-  const { boardSprints: [boardSprints, setBoardSprints] } = useContext(KPIStoreContext);
+  const [sprint, setSprint] = useState(-1);
+  const source = CancelToken.source();
+  const { users: [users, setUsers],
+    boardSprints: [boardSprints, setBoardSprints] } = useContext(KPIStoreContext);
   const [reloadComponent, setReloadComponent] = useState(0);
 
   useEffect(() => {
     if(boardSprints.length === 0) {
-      GetSprints()
+      GetSprints({ cancelToken: source.token })
       .then((results) => {
         setBoardSprints(results.data)
-      })
-    } else {
+      }).catch((e) => {
+        if (!axios.isCancel(e)) {
+          console.log("Error: ", e);
+        }
+      });
+    } else if(sprint === -1) {
       setSprint(boardSprints.filter((item) => item.state === 'active')[0].id)
     }
+
+    if(users.length === 0) {
+      GetUser({ cancelToken: source.token })
+      .then((results) => {
+        setUsers(results.data);
+      }).catch((e) => {
+        if (!axios.isCancel(e)) {
+          console.log("Error: ", e);
+        }
+      });
+    }
+    return (() => {
+      source.cancel();
+    });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [boardSprints])
+  }, [users, boardSprints])
 
   if(boardSprints.length === 0 || sprint === null) {
     return <Loading width={'100%'} />
@@ -76,7 +90,7 @@ export default function Productivities() {
           </div>
         </Grid>
       </Grid>
-      {TeamList.map((team, idx) => {
+      {DefaultConfig.TEAM_LIST.map((team, idx) => {
         return (
           <Grid key={idx} container spacing={3}>
             <Grid item xs={12}>
