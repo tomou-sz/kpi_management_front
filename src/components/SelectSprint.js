@@ -18,7 +18,7 @@ export default function SelectSprint({...props}) {
     >
       {boardSprints.map((item, idx) => {
         const sprint_name = `sprint_${dateFormat(new Date(item.start_date), '_')} ~ sprint_${dateFormat(new Date(item.end_date), '_')}`;
-        return <option key={idx} value={item.id}>{(item.start_date === null || item.end_date === null) ? `sprint_${item.id}` : sprint_name}</option>
+        return <option key={idx} value={item.id}>{item.name}</option>
       })}
     </Select>
   );
