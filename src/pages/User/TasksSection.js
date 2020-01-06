@@ -4,7 +4,7 @@ import TasksTable from '../../components/TasksTable';
 import GetTasks, { IncludeUserInfo } from '../../utils/GetTasks.js';
 import { KPIStoreContext } from '../../contexts/KPIStore.js';
 import PropTypes from 'prop-types';
-import { CancelToken } from 'axios';
+import axios, { CancelToken } from 'axios';
 
 export default function TasksSession({...props}) {
   const {jira_id, user_id, sprintID, reload, position} = props;
@@ -23,6 +23,10 @@ export default function TasksSession({...props}) {
       if(componentIsMounted.current) {
         dispatchTickets({type: 'ADD_OR_UPDATE_TICKETS', data: ticketsMap});
         setLoading(false);
+      }
+    }).catch((e) => {
+      if (!axios.isCancel(e)) {
+        console.log("Error: ", e);
       }
     })
     .finally(() => {

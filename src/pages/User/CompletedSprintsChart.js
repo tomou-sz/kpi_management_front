@@ -7,7 +7,7 @@ import Loading from '../../components/Loading';
 import GetProductivity from '../../utils/GetProductivity';
 import StableSort, { getSorting } from '../../utils/StableSort';
 import { getHour } from '../../utils/TimeFormat';
-import { CancelToken } from 'axios';
+import axios, { CancelToken } from 'axios';
 
 const PREV_SPRINT = 6;
 
@@ -25,11 +25,15 @@ export default function CompletedSprintsChart({...props}) {
       return GetProductivity(id, sprint_id, { cancelToken: source.token }).then(results => {
         const productivity = results.data;
         return Object.assign(productivity, props);
-      })
+      });
     });
     Promise.all(promises).then(results => {
       if( componentIsMounted.current ) {
-        dispatchProductive({type: 'ADD_OR_UPDATE_PRODUCTIVE', data: results})
+        dispatchProductive({type: 'ADD_OR_UPDATE_PRODUCTIVE', data: results});
+      }
+    }).catch((e) => {
+      if (!axios.isCancel(e)) {
+        console.log("Error: ", e);
       }
     });
 

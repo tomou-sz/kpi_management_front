@@ -10,6 +10,7 @@ import { KPIStoreContext } from '../../contexts/KPIStore';
 import GetUser from '../../utils/GetUser';
 import GetLogWork from '../../utils/GetLogWork';
 import {getMonday, dateFormat, renderDateArray} from '../../utils/TimeFormat';
+import axios from 'axios';
 
 const DAYS_OF_WEEK = 7;
 
@@ -50,6 +51,10 @@ export default function DailyWorkLogs() {
         setWorkLogs([...workLogs, ...initLoadingWorkLogs]);
         Promise.all(promises).then((results) => {
           setWorkLogs([...workLogs, ...results]);
+        }).catch((e) => {
+          if (!axios.isCancel(e)) {
+            console.log("Error: ", e);
+          }
         });
       }
     }
@@ -58,14 +63,18 @@ export default function DailyWorkLogs() {
         return item.total_time_spent !== undefined
       })
       localStorage.setItem('workLogs', JSON.stringify(cacheLogs));
-    })
+    });
   }, [targetDateRange, users, workLogs, setWorkLogs])
 
   if( users.length === 0 || !dateArray ) {
     if(users.length === 0) {
       GetUser().then((results) => {
         setUsers(results.data);
-      })
+      }).catch((e) => {
+        if (!axios.isCancel(e)) {
+          console.log("Error: ", e);
+        }
+      });
     }
     return <Loading width={400} />
   }

@@ -12,7 +12,7 @@ import Paper from '@material-ui/core/Paper';
 import { makeStyles } from '@material-ui/core/styles';
 import GetTasks, { IncludeUserInfo } from '../../utils/GetTasks.js';
 import GetUser from '../../utils/GetUser.js';
-import { CancelToken } from 'axios';
+import axios, { CancelToken } from 'axios';
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -43,6 +43,10 @@ export default function TeamTickets() {
       GetSprints({ cancelToken: source.token })
       .then((results) => {
         setBoardSprints(results.data);
+      }).catch((e) => {
+        if (!axios.isCancel(e)) {
+          console.log("Error: ", e);
+        }
       });
     } else if(sprint === -1) {
       setSprint(boardSprints.filter((item) => item.state === 'active')[0].id);
@@ -52,6 +56,10 @@ export default function TeamTickets() {
       GetUser({ cancelToken: source.token })
       .then((results) => {
         setUsers(results.data);
+      }).catch((e) => {
+        if (!axios.isCancel(e)) {
+          console.log("Error: ", e);
+        }
       });
     }
 
@@ -76,6 +84,10 @@ export default function TeamTickets() {
           dispatchTickets({type: 'ADD_OR_UPDATE_TICKETS', data: tickets});
         }
         setLoading(false);
+      }).catch((e) => {
+        if (!axios.isCancel(e)) {
+          console.log("Error: ", e);
+        }
       });
     } else {
       setLoading(false);

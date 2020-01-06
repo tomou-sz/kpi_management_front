@@ -6,7 +6,7 @@ import { KPIStoreContext } from '../../contexts/KPIStore';
 import Loading from '../../components/Loading';
 import GetProductivity, { calcProductivity } from '../../utils/GetProductivity';
 import StableSort, { getSorting } from '../../utils/StableSort';
-import { CancelToken } from 'axios';
+import axios, { CancelToken } from 'axios';
 
 const PREV_SPRINT = 6;
 
@@ -29,6 +29,10 @@ export default function ProductiveChart({...props}) {
     Promise.all(promises).then(results => {
       if( componentIsMounted.current ) {
         dispatchProductive({type: 'ADD_OR_UPDATE_PRODUCTIVE', data: results});
+      }
+    }).catch((e) => {
+      if (!axios.isCancel(e)) {
+        console.log("Error: ", e);
       }
     });
     return (() => {

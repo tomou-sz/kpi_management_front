@@ -13,7 +13,7 @@ import GetUser from '../../utils/GetUser.js';
 import SelectSprint from '../../components/SelectSprint';
 import ProductiveSection from './ProductiveSection';
 import DefaultConfig from '../../utils/DefaultConfig';
-import { CancelToken } from 'axios';
+import axios, { CancelToken } from 'axios';
 
 export default function Productivities() {
   const [sprint, setSprint] = useState(-1);
@@ -27,7 +27,11 @@ export default function Productivities() {
       GetSprints({ cancelToken: source.token })
       .then((results) => {
         setBoardSprints(results.data)
-      })
+      }).catch((e) => {
+        if (!axios.isCancel(e)) {
+          console.log("Error: ", e);
+        }
+      });
     } else if(sprint === -1) {
       setSprint(boardSprints.filter((item) => item.state === 'active')[0].id)
     }
@@ -36,6 +40,10 @@ export default function Productivities() {
       GetUser({ cancelToken: source.token })
       .then((results) => {
         setUsers(results.data);
+      }).catch((e) => {
+        if (!axios.isCancel(e)) {
+          console.log("Error: ", e);
+        }
       });
     }
     return (() => {

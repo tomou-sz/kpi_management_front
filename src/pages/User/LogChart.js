@@ -6,7 +6,7 @@ import {renderDateArray} from '../../utils/TimeFormat';
 import { KPIStoreContext } from '../../contexts/KPIStore';
 import Loading from '../../components/Loading';
 import GetLogWork from '../../utils/GetLogWork';
-import { CancelToken } from 'axios';
+import axios, { CancelToken } from 'axios';
 
 export default function LogChart({...props}) {
   const {jira_id} = props;
@@ -26,6 +26,10 @@ export default function LogChart({...props}) {
       Promise.all(promises).then((results) => {
         if( componentIsMounted.current ) {
           setWorkLogs([...workLogs, ...results]);
+        }
+      }).catch((e) => {
+        if (!axios.isCancel(e)) {
+          console.log("Error: ", e);
         }
       });
     }
