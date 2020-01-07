@@ -10,6 +10,7 @@ import DefaultConfig from '../../utils/DefaultConfig';
 import TasksStatus from '../../components/TasksStatus/';
 import TasksType from '../../components/TasksType/';
 import UserInfo from '../UserInfo';
+import TicketsLabel from '../../components/TicketsLabel';
 
 const useStyles = makeStyles({
   tableResponsive: {
@@ -99,7 +100,9 @@ export default function TableLayout({...props}) {
               {row.issuetype}
             </TasksType>
           </TableCell>
-          <TableCell>{row.summary}</TableCell>
+          <TableCell>
+            <TicketsLabel>{row.summary}</TicketsLabel>
+          </TableCell>
           <TableCell>
             <TasksStatus>{row.status.name}</TasksStatus>
           </TableCell>
