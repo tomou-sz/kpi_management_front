@@ -2,7 +2,6 @@ import React, { useContext } from 'react';
 import PropTypes from 'prop-types';
 import Select from '@material-ui/core/Select';
 import { KPIStoreContext } from '../contexts/KPIStore';
-import { dateFormat } from '../utils/TimeFormat';
 
 export default function SelectSprint({...props}) {
   const { boardSprints: [boardSprints] } = useContext(KPIStoreContext);
@@ -17,8 +16,7 @@ export default function SelectSprint({...props}) {
       {...props}
     >
       {boardSprints.map((item, idx) => {
-        const sprint_name = `sprint_${dateFormat(new Date(item.start_date), '_')} ~ sprint_${dateFormat(new Date(item.end_date), '_')}`;
-        return <option key={idx} value={item.id}>{item.name}</option>
+        return <option key={idx} value={item.id}>{`${item.name} - ${item.state}`}</option>
       })}
     </Select>
   );

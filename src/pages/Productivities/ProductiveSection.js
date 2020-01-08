@@ -21,7 +21,7 @@ export default function ProductiveSection({...props}) {
       dispatchProductive({type: 'REMOVE_PRODUCTIVE', target_sprint_id: sprint_id})
     }
 
-    if( productiveData.length === 0 || prevReloadState.current !== reload) {
+    if( isEmptyData(jira_ids, productiveData) || prevReloadState.current !== reload ) {
       let promises = user_ids.map(item => {
         return GetProductivity(item, sprint_id, { cancelToken: source.token }).then(results => {
           const productivity = results.data;
@@ -47,9 +47,13 @@ export default function ProductiveSection({...props}) {
 
   return (
     <Paper style={{marginBottom: '1rem'}}>
-      <ProductiveTable data={productiveData.length !== 0 ? productiveData : undefined} />
+      <ProductiveTable data={isEmptyData(jira_ids, productiveData) ? undefined : productiveData} />
     </Paper>
   )
+}
+
+const isEmptyData = (jira_ids, productiveData) => {
+  return productiveData.length === 0 || ( jira_ids.length !== productiveData.length )
 }
 
 const getProductiveTable = (data, jira_ids, target_sprint_id) => {
