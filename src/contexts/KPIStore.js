@@ -2,6 +2,7 @@
 import React, { useState, createContext, useReducer } from 'react';
 import ProductiveReducer, { initProductive } from '../reducers/ProductiveReducer';
 import TicketsReducer, { initTickets } from '../reducers/TicketsReducer';
+import StoryPointsReducer, { initStoryPoints } from '../reducers/StoryPointsReducer';
 
 export const KPIStoreContext = createContext(null);
 
@@ -11,6 +12,7 @@ export default ({ children }) => {
   const [tickets, dispatchTickets] = useReducer(TicketsReducer, initTickets);
   const [boardSprints, setBoardSprints] = useState([]);
   const [productive, dispatchProductive] = useReducer(ProductiveReducer, initProductive);
+  const [storyPoints, dispatchStoryPoints] = useReducer(StoryPointsReducer, initStoryPoints);
   const [setting, setSetting] = useState({
     layout: false,
   });
@@ -21,6 +23,7 @@ export default ({ children }) => {
     tickets: [tickets, dispatchTickets],
     boardSprints: [boardSprints, setBoardSprints],
     productive: [productive, dispatchProductive],
+    storyPoints: [storyPoints, dispatchStoryPoints],
     setting: [setting, setSetting],
   };
 
