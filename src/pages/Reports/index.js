@@ -1,4 +1,4 @@
-import React, { useState, useContext, useEffect, useRef } from "react";
+import React, { useState, useContext, useEffect } from "react";
 import { KPIStoreContext } from '../../contexts/KPIStore';
 import DefaultConfig from '../../utils/DefaultConfig';
 import { makeStyles, Grid, Paper, Tooltip, Button, Select } from '@material-ui/core';
@@ -7,6 +7,7 @@ import SelectSprint from '../../components/SelectSprint';
 import SelectTeam from '../../components/SelectTeam';
 import GetUser from '../../utils/GetUser.js';
 import BurndownChart from './BurndownChart';
+import VelocityChart from './VelocityChart';
 import axios, { CancelToken } from 'axios';
 
 const useStyles = makeStyles(theme => ({
@@ -25,16 +26,15 @@ export default function Reports() {
   const classes = useStyles();
   const source = CancelToken.source();
   const [sprint, setSprint] = useState(-1);
+  const [chartType, setChartType] = useState('burndown_chart');
   const [teamSelector, setTeamSelector] = useState(DefaultConfig.TEAM_LIST[0].name);
   const [reloadComponent, setReloadComponent] = useState(0);
-  const prevReloadState = useRef(reloadComponent);
   const { users: [users, setUsers],
     boardSprints: [boardSprints] } = useContext(KPIStoreContext);
   const teamIds = users.filter(item => DefaultConfig[teamSelector].indexOf(item.jira_id) !== -1).map(item => item.id);
   const activeSprint = boardSprints.filter(item => item.id === sprint)[0];
 
   useEffect(() => {
-    const isReload = prevReloadState.current !== reloadComponent;
     if(sprint === -1 && boardSprints.length !== 0) {
       setSprint(boardSprints.filter(item => item.state === 'active')[0].id);
     }
@@ -50,16 +50,11 @@ export default function Reports() {
       });
     }
 
-    if(isReload) {
-      console.log('reload component');
-    }
-
-    prevReloadState.current = reloadComponent;
     return (() => {
       source.cancel();
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [boardSprints, sprint, teamSelector, reloadComponent]);
+  }, [boardSprints, sprint, teamSelector]);
 
   const handleChangeSprint = () => event => {
     setSprint(parseInt(event.target.value));
@@ -67,6 +62,10 @@ export default function Reports() {
 
   const handleChangeTeamSelector = () => event => {
     setTeamSelector(event.target.value);
+  };
+
+  const handleChangeChart = () => event => {
+    setChartType(event.target.value);
   };
 
   const refreshData = () => {
@@ -88,7 +87,11 @@ export default function Reports() {
           <SelectSprint value={sprint} onChange={handleChangeSprint()}/>
         </Grid>
         <Grid item xs={6} style={{textAlign: 'right'}}>
-          <Select native >
+          <Select
+            native
+            onChange={handleChangeChart()}
+            value={chartType}
+          >
             {[
               {title: 'BurnDown Chart', value: 'burndown_chart'},
               {title: 'Velocity Chart', value: 'velocity_chart'}
@@ -99,15 +102,24 @@ export default function Reports() {
         </Grid>
       </Grid>
       <Paper style={{marginBottom: '1rem'}}>
-        {
-          (sprint !== -1 && teamIds.length > 0) ?
-          <BurndownChart
-            user_ids={teamIds.join(',')}
-            sprint_id={sprint.toString()}
-            startDate={new Date(activeSprint.start_date)}
-            endDate={new Date(activeSprint.end_date)}
-          /> : ''
-        }
+        {(() => {
+          if( chartType === 'burndown_chart') {
+            return (
+              (sprint !== -1 && teamIds.length > 0) ?
+              <BurndownChart
+                isReload={reloadComponent}
+                user_ids={teamIds.join(',')}
+                sprint_id={sprint.toString()}
+                startDate={new Date(activeSprint.start_date)}
+                endDate={new Date(activeSprint.end_date)}
+              /> : ''
+            );
+          } else {
+            return (
+              <VelocityChart/>
+            );
+          }
+        })()}
       </Paper>
     </div>
   );

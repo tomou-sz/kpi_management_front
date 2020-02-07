@@ -7,24 +7,31 @@ import ErrorBoundary from '../../utils/ErrorBoundary';
 import Skeleton from '@material-ui/lab/Skeleton';
 import { getWeekends, getDaysBetween, getHour } from '../../utils/TimeFormat';
 import { FormControl, FormControlLabel, RadioGroup, Radio } from '@material-ui/core';
-import { CancelToken } from 'axios';
+import axios, { CancelToken } from 'axios';
 
 const optionStoryPoint = {
-  seriesType: 'steppedArea', //'steppedArea',
+  seriesType: 'line', //'steppedArea',
   areaOpacity: 0,
-  colors: ['red', 'blue'],
+  colors: [null, 'red', 'blue'],
   legend: {
     position: 'bottom',
     alignment: 'start'
   },
   interpolateNulls: true,
   chartArea: { width: '90%' },
+  tooltip: {
+    isHtml: true
+  },
   series: {
-    1: {
+    0: {
       type: 'line',
       color: '#bfbfbf',
       visibleInLegend: false,
+      enableInteractivity: false,
     }
+  },
+  vAxis: {
+    format:'#pt',
   },
   hAxis: {
     gridlines: {
@@ -38,17 +45,14 @@ const optionStoryPoint = {
   },
 };
 
-const optionRemainTime = Object.assign({}, optionStoryPoint);
-optionRemainTime.series = {
-  2: {
-    type: 'line',
-    color: '#bfbfbf',
-    visibleInLegend: false,
-  }
-};
+const optionRemainTime = Object.assign({}, optionStoryPoint, {
+  vAxis: {
+    format: '#h',
+  },
+});
 
 export default function BurndownChart({...props}) {
-  const {user_ids, sprint_id, startDate, endDate} = props;
+  const {user_ids, sprint_id, startDate, endDate, isReload} = props;
   const source = CancelToken.source();
   const componentIsMounted = useRef(true);
   const [googleObject, setGoogleObject] = useState(window.google);
@@ -62,8 +66,8 @@ export default function BurndownChart({...props}) {
       params: {
         user_ids: user_ids,
         sprint_id: sprint_id,
-        cancelToken: source.token,
-      }
+      },
+      cancelToken: source.token,
     }).then((results) => {
       if(componentIsMounted.current) {
         if(layout === 'remain_time') {
@@ -72,14 +76,20 @@ export default function BurndownChart({...props}) {
           setStoryPoints(results.data.total_remaining_story_points);
         }
       }
+    }).catch((e) => {
+      if (!axios.isCancel(e)) {
+        console.log("Error: ", e);
+      }
+    });
+    return (() => {
+      source.cancel();
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user_ids, sprint_id, layout]);
+  }, [user_ids, sprint_id, layout, isReload]);
 
   useEffect(() => {
     componentIsMounted.current = true;
     return (() => {
-      source.cancel();
       componentIsMounted.current = false;
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -87,7 +97,7 @@ export default function BurndownChart({...props}) {
 
   const renderStoryPointChart = (data) => {
     if(!!googleObject && data.length > 0) {
-      return attachGuideLine(startDate, endDate, getDataStoryPoint(data));
+      return attachGuideLine(startDate, endDate, getDataStoryPoint(data), null, null, [1, 2]);
     }
 
     return [
@@ -101,7 +111,7 @@ export default function BurndownChart({...props}) {
       let maxVal = data[0].time_trackings.reduce((prev, curr) => {
         return prev + curr.remaining_time;
       }, 0);
-      return attachGuideLine(startDate, endDate, getDataRemainTime(data), getHour(maxVal), null, [1, 2]);
+      return attachGuideLine(startDate, endDate, getDataRemainTime(data), getHour(maxVal), null, [1, 2, 3, 4]);
     }
 
     return [
@@ -180,36 +190,69 @@ export default function BurndownChart({...props}) {
 
 const getDataStoryPoint = (data) => {
   let newArray = data.map(item => {
+    let remaining_story_points = item.remaining_story_points.reduce((acc, value) => {
+      return acc + value.story_point
+    }, 0);
     return [
       new Date(item.date),
-      item.remaining_story_points.reduce((acc, value) => {
-        return acc + value.story_point
-      }, 0)
+      remaining_story_points,
+      `
+      <div style="padding: 5px;">
+        <strong>${(new Date(item.date)).toUTCString()}</strong>
+        <div><strong>Remaining Storypoints: ${remaining_story_points}pt</strong></div>
+        ${
+          item.remaining_story_points.map(item => {
+            return `<div>${item.jira_id}: ${item.story_point}pt</div>`;
+          }).join('')
+        }
+      </div>
+      `,
     ]
   });
   newArray.unshift([
     {label: 'Date', type: 'datetime'},
     {label: 'Remain Story Points', type: 'number'},
+    {type: 'string', role: 'tooltip', p: { html: true }},
   ]);
   return newArray;
 };
 
 const getDataRemainTime = (data) => {
+  let renderHtmlTooltip = (data, totalData, d1name, d2name) => {
+    return `
+    <div style="padding: 5px;">
+      <strong>${(new Date(data.date)).toUTCString()}</strong>
+      <div><strong>${d2name}: ${totalData.toFixed(2)}h</strong></div>
+      ${
+        data[d1name].map(item => {
+          return `<div>${item.jira_id}: ${getHour(item[d2name]).toFixed(2)}h</div>`;
+        }).join('')
+      }
+    </div>
+    `;
+  }
+
   let newArray = data.map(item => {
+    let remaining_time = item.time_trackings.reduce((acc, value) => {
+      return acc + getHour(value.remaining_time)
+    }, 0);
+    let time_spent = item.time_trackings.reduce((acc, value) => {
+      return acc + getHour(value.time_spent)
+    }, 0);
     return [
       new Date(item.date),
-      item.time_trackings.reduce((acc, value) => {
-        return acc + getHour(value.remaining_time)
-      }, 0),
-      item.time_trackings.reduce((acc, value) => {
-        return acc + getHour(value.time_spent)
-      }, 0),
+      remaining_time,
+      renderHtmlTooltip(item, remaining_time, 'time_trackings', 'remaining_time'),
+      time_spent,
+      renderHtmlTooltip(item, time_spent, 'time_trackings', 'time_spent'),
     ]
   });
   newArray.unshift([
     {label: 'Date', type: 'datetime'},
     {label: 'Remain Estimate', type: 'number'},
+    {type: 'string', role: 'tooltip', p: { html: true }},
     {label: 'Time Spent', type: 'number'},
+    {type: 'string', role: 'tooltip', p: { html: true }},
   ]);
   return newArray;
 };
@@ -256,12 +299,12 @@ const attachGuideLine = (startDate, endDate, data, maxVal, keys, dt1Columns) => 
 
   // Create dateTable
   let joinedData = google.visualization.data.join(
-    google.visualization.arrayToDataTable(data),
     google.visualization.arrayToDataTable(guideLineTable),
+    google.visualization.arrayToDataTable(data),
     'full',
     keys,
+    [1],
     dt1Columns,
-    [1]
   );
   return dataTableToArray(joinedData);
 }
@@ -292,4 +335,5 @@ BurndownChart.propTypes = {
   sprint_id: PropTypes.string.isRequired,
   startDate: PropTypes.instanceOf(Date).isRequired,
   endDate: PropTypes.instanceOf(Date).isRequired,
+  isReload: PropTypes.number,
 };
