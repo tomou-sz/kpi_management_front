@@ -29,6 +29,12 @@ export function getMonday(d) {
   return new Date(d.setDate(diff));
 }
 
+export function getFriday(d) {
+  d = getMonday(d);
+  d.setDate(d.getDate() + 4);
+  return new Date(d);
+}
+
 export function dateFormat(date, separator) {
   if( separator === null || separator === undefined ) {
     separator = '-'

@@ -5,7 +5,7 @@ import Box from '@material-ui/core/Box';
 import { GetTotalRemainStoryPoints, GetTotalTimeTrack } from '../../utils/GetReports';
 import ErrorBoundary from '../../utils/ErrorBoundary';
 import Skeleton from '@material-ui/lab/Skeleton';
-import { getWeekends, getDaysBetween, getHour } from '../../utils/TimeFormat';
+import { getWeekends, getDaysBetween, getHour, getFriday } from '../../utils/TimeFormat';
 import { FormControl, FormControlLabel, RadioGroup, Radio } from '@material-ui/core';
 import axios, { CancelToken } from 'axios';
 
@@ -263,6 +263,9 @@ const attachGuideLine = (startDate, endDate, data, maxVal, keys, dt1Columns) => 
   if(!google) {
     return [];
   }
+  if(!(startDate instanceof Date) || !(endDate instanceof Date)) {
+    return [];
+  }
 
   if(keys === null || keys === undefined) {
     keys = [[0, 0]];
@@ -275,6 +278,8 @@ const attachGuideLine = (startDate, endDate, data, maxVal, keys, dt1Columns) => 
   if(maxVal === null || maxVal === undefined) {
     maxVal = (!!data && !!data[1] && !!data[1][1]) ? data[1][1] : 0;
   }
+
+  endDate = endDate.getDay() === 6 || endDate.getDay() === 0 ? getFriday(endDate) : endDate;
 
   let weekendItems = getWeekends(startDate, endDate);
 
@@ -319,15 +324,24 @@ const dataTableToArray = (dataTable) => {
   if(!(dataTable instanceof google.visualization.DataTable)) {
     return [];
   }
+  let getTableJSON = {};
 
-  let arr = dataTable.wg.map(item => {
-    return item.c.map(item => item.v);
-  });
+  try {
+    getTableJSON = JSON.parse(dataTable.toJSON());
+    let arr = getTableJSON.rows.map(item => {
+      return item.c.map(item => item.v);
+    });
 
-  //Add table label
-  arr.unshift(dataTable.vg);
+    //Add table label
+    arr.unshift(getTableJSON.cols);
 
-  return arr;
+    return arr;
+  }
+  catch(err) {
+    console.log('dataTableToArray errors: ', err.message);
+  }
+
+  return [];
 };
 
 BurndownChart.propTypes = {

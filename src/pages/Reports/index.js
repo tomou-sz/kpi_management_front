@@ -36,7 +36,10 @@ export default function Reports() {
 
   useEffect(() => {
     if(sprint === -1 && boardSprints.length !== 0) {
-      setSprint(boardSprints.filter(item => item.state === 'active')[0].id);
+      let actSprint = boardSprints.filter(item => item.state === 'active');
+      if(actSprint.length > 0) {
+        setSprint(actSprint[0].id);
+      }
     }
 
     if(users.length === 0) {
