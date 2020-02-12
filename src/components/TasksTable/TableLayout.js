@@ -26,7 +26,7 @@ const headerTitle_non_assignee = [
   {title: 'Key', key: 'key'},
   {title: 'Type', key: 'issuetype'},
   {title: 'Summary', key: 'summary'},
-  {title: 'Status', key: 'status_key'},
+  {title: 'Status', key: 'status.name'},
   {title: 'Original Estimate', key: 'original_estimate_seconds'},
   {title: 'Time Spent', key: 'time_spent_seconds'},
   {title: 'Remaining Estimate', key: 'remaining_estimate_seconds'}
@@ -36,7 +36,7 @@ const headerTitle_with_assignee = [
   {title: 'Key', key: 'key'},
   {title: 'Type', key: 'issuetype'},
   {title: 'Summary', key: 'summary'},
-  {title: 'Status', key: 'status_key'},
+  {title: 'Status', key: 'status.name'},
   {title: 'Original Estimate', key: 'original_estimate_seconds'},
   {title: 'Time Spent', key: 'time_spent_seconds'},
   {title: 'Remaining Estimate', key: 'remaining_estimate_seconds'},
