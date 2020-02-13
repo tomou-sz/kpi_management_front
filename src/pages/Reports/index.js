@@ -31,8 +31,8 @@ export default function Reports() {
   const [reloadComponent, setReloadComponent] = useState(0);
   const { users: [users, setUsers],
     boardSprints: [boardSprints] } = useContext(KPIStoreContext);
-  const teamIds = users.filter(item => DefaultConfig[teamSelector].indexOf(item.jira_id) !== -1).map(item => item.id);
-  const activeSprint = boardSprints.filter(item => item.id === sprint)[0];
+  const teamIds = !!users && users.filter(item => DefaultConfig[teamSelector].indexOf(item.jira_id) !== -1).map(item => item.id);
+  const activeSprint = !!boardSprints && boardSprints.filter(item => item.id === sprint)[0];
 
   useEffect(() => {
     if(sprint === -1 && boardSprints.length !== 0) {
@@ -42,7 +42,7 @@ export default function Reports() {
       }
     }
 
-    if(users.length === 0) {
+    if(!!users && users.length === 0) {
       GetUser({ cancelToken: source.token })
       .then((results) => {
         setUsers(results.data);
@@ -105,24 +105,21 @@ export default function Reports() {
         </Grid>
       </Grid>
       <Paper style={{marginBottom: '1rem'}}>
-        {(() => {
-          if( chartType === 'burndown_chart') {
-            return (
-              (sprint !== -1 && teamIds.length > 0) ?
-              <BurndownChart
-                isReload={reloadComponent}
-                user_ids={teamIds.join(',')}
-                sprint_id={sprint.toString()}
-                startDate={new Date(activeSprint.start_date)}
-                endDate={new Date(activeSprint.end_date)}
-              /> : ''
-            );
-          } else {
-            return (
-              <VelocityChart/>
-            );
-          }
-        })()}
+        {
+          chartType === 'burndown_chart' ?
+          (
+            (sprint !== -1 && teamIds.length > 0) ?
+            <BurndownChart
+              isReload={reloadComponent}
+              user_ids={teamIds.join(',')}
+              sprint_id={!!sprint && sprint.toString()}
+              startDate={!!activeSprint && new Date(activeSprint.start_date)}
+              endDate={!!activeSprint && new Date(activeSprint.end_date)}
+            />
+            : ''
+          )
+          : <VelocityChart/>
+        }
       </Paper>
     </div>
   );

@@ -198,7 +198,7 @@ const getDataStoryPoint = (data) => {
       remaining_story_points,
       `
       <div style="padding: 5px;">
-        <strong>${(new Date(item.date)).toUTCString()}</strong>
+        <strong>${(new Date(item.date))}</strong>
         <div><strong>Remaining Storypoints: ${remaining_story_points}pt</strong></div>
         ${
           item.remaining_story_points.map(item => {
@@ -221,7 +221,7 @@ const getDataRemainTime = (data) => {
   let renderHtmlTooltip = (data, totalData, d1name, d2name) => {
     return `
     <div style="padding: 5px;">
-      <strong>${(new Date(data.date)).toUTCString()}</strong>
+      <strong>${(new Date(data.date))}</strong>
       <div><strong>${d2name}: ${totalData.toFixed(2)}h</strong></div>
       ${
         data[d1name].map(item => {

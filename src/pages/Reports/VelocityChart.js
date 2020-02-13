@@ -1,4 +1,4 @@
-export default function VelocityChart({...props}) {
+export default function VelocityChart() {
   return (
     'VelocityChart'
   );
