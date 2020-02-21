@@ -54,7 +54,10 @@ export default function User() {
         }
       });
     } else if(sprint === -1) {
-      setSprint(boardSprints.filter((item) => item.state === 'active')[0].id);
+      let actSprint = boardSprints.filter(item => item.state === 'active');
+      if(actSprint.length > 0) {
+        setSprint(actSprint[0].id);
+      }
     }
     return(() => {
       componentIsMounted.current = false;

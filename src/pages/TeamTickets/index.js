@@ -4,8 +4,8 @@ import DefaultConfig from '../../utils/DefaultConfig';
 import Button from '@material-ui/core/Button';
 import Tooltip from '@material-ui/core/Tooltip';
 import RefreshIcon from '@material-ui/icons/Refresh';
-import Select from '@material-ui/core/Select';
 import SelectSprint from '../../components/SelectSprint';
+import SelectTeam from '../../components/SelectTeam';
 import GetSprints from '../../utils/GetSprints';
 import TasksTable from '../../components/TasksTable';
 import Paper from '@material-ui/core/Paper';
@@ -49,7 +49,10 @@ export default function TeamTickets() {
         }
       });
     } else if(sprint === -1) {
-      setSprint(boardSprints.filter((item) => item.state === 'active')[0].id);
+      let actSprint = boardSprints.filter(item => item.state === 'active');
+      if(actSprint.length > 0) {
+        setSprint(actSprint[0].id);
+      }
     }
 
     if(users.length === 0) {
@@ -130,15 +133,7 @@ export default function TeamTickets() {
           <RefreshIcon/>
         </Button>
       </Tooltip>
-      <Select
-        native
-        value={teamSelector}
-        onChange={handleChangeTeamSelector()}
-      >
-        {DefaultConfig.TEAM_LIST.map((item, idx) => {
-        return <option key={idx} value={item.name}>{item.title}</option>
-        })}
-      </Select>
+      <SelectTeam value={teamSelector} onChange={handleChangeTeamSelector()}/>
       <SelectSprint value={sprint} onChange={handleChangeSprint()}/>
       <Paper style={{marginBottom: '1rem'}}>
         <TasksTable progressing={loading} data={filterTask} showAssignee />

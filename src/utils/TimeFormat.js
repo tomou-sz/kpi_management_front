@@ -8,9 +8,9 @@ export default (second) => {
   let hours   = Math.floor((sec_num - (day * 28800)) / 3600);
   let minutes = Math.floor((sec_num - ((hours * 3600) + (day * 28800))) / 60);
 
-  if (day <= 0) { day = '' } else { day = day + ' day ' }
-  if (hours <= 0) { hours = '' } else { hours = hours + ' hours '; }
-  if (minutes <= 0) { minutes = '' } else { minutes = minutes + ' mins'; }
+  if (day <= 0) { day = ''; } else { day = day + ' day '; }
+  if (hours <= 0) { hours = ''; } else { hours = hours + ' hours '; }
+  if (minutes <= 0) { minutes = ''; } else { minutes = minutes + ' mins'; }
   return day + hours + minutes;
 }
 
@@ -27,6 +27,12 @@ export function getMonday(d) {
   var day = d.getDay(),
       diff = d.getDate() - day + (day === 0 ? -6:1);
   return new Date(d.setDate(diff));
+}
+
+export function getFriday(d) {
+  d = getMonday(d);
+  d.setDate(d.getDate() + 4);
+  return new Date(d);
 }
 
 export function dateFormat(date, separator) {
@@ -61,4 +67,24 @@ export function renderDateArray(currentDate, dayOfWeek) {
   }
   dateArray.sort((a,b) => a.date > b.date)
   return dateArray;
+}
+
+export function getWeekends(a, b) {
+  let days = getDaysBetween(a, b) / 24;
+  let currDate = new Date(a);
+  let weekends = [];
+  for(let i = 0; i <= days - 1; i++) {
+    currDate.setDate(currDate.getDate() + 1);
+    if(currDate.getDay() === 6 || currDate.getDay() === 0) {
+      weekends.push(new Date(currDate));
+    }
+  }
+  return weekends;
+}
+
+export function getDaysBetween(a, b) {
+  if(a instanceof Date && b instanceof Date) {
+    return Math.abs(a - b) / (60 * 60 * 1000); // return time by Minutes
+  }
+  return false;
 }

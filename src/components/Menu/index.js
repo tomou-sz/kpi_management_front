@@ -8,6 +8,7 @@ import AssignmentIcon from '@material-ui/icons/Assignment';
 import PeopleIcon from '@material-ui/icons/People';
 import TimelineIcon from '@material-ui/icons/Timeline';
 import ListAltIcon from '@material-ui/icons/ListAlt';
+import BarChartIcon from '@material-ui/icons/BarChart';
 
 export default function Menu({...rest}) {
   return (
@@ -31,6 +32,10 @@ export default function Menu({...rest}) {
       <ListItem button component={Link} to="/team_tickets" selected={rest.title === 'Team Tickets'} >
         <ListItemIcon><ListAltIcon /></ListItemIcon>
         Team Tickets
+      </ListItem>
+      <ListItem button component={Link} to="/reports" selected={rest.title === 'Reports'} >
+        <ListItemIcon><BarChartIcon /></ListItemIcon>
+        Reports
       </ListItem>
     </List>
   );
