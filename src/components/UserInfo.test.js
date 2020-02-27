@@ -14,6 +14,33 @@ const defaultProps = {
   onClick: jest.fn()
 };
 
+test('UserInfo renders without name props', () => {
+  const { queryByText } = render(
+    <BrowserRouter>
+      <UserInfo id={3} />
+    </BrowserRouter>
+  );
+  expect(queryByText('Luohao')).toBeNull();
+});
+
+test('UserInfo renders without jira_id props', () => {
+  const { queryByText } = render(
+    <BrowserRouter>
+      <UserInfo id={3} />
+    </BrowserRouter>
+  );
+  expect(queryByText('jakeluong')).toBeNull();
+});
+
+test('UserInfo renders without position props', () => {
+  const { queryByText } = render(
+    <BrowserRouter>
+      <UserInfo id={3} />
+    </BrowserRouter>
+  );
+  expect(queryByText('junior')).toBeNull();
+});
+
 test('UserInfo did renders with correct data and link', () => {
   const { queryByText } = render(
     <BrowserRouter>
@@ -52,3 +79,13 @@ test('UserInfo did renders without jira id', () => {
   );
   expect(queryByText('Luohao')).toBeTruthy()
 });
+
+test('should render link to user detail page on click', () => {
+  const onClick = jest.fn();
+  const { getByText } = render (
+    <BrowserRouter>
+      <UserInfo {...defaultProps} onClick={onClick} />
+    </BrowserRouter>
+  );
+  expect(getByText(defaultProps.name).getAttribute('href')).toBe('/user/3');
+})
