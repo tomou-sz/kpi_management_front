@@ -5,87 +5,66 @@ import { render, fireEvent, cleanup } from '@testing-library/react';
 
 afterEach(cleanup);
 
-const defaultProps = {
-  id: 3,
-  name: 'Luohao',
-  jira_id: 'jakeluong',
-  position: 'junior',
-  useLink: true,
-  onClick: jest.fn()
-};
+describe('UserInfo did renders', () => {
+  const defaultProps = {
+    id: 3,
+    name: 'Luohao',
+    useLink: true,
+    jira_id: 'jakeluong',
+    position: 'junior'
+  }
 
-test('UserInfo renders without name props', () => {
-  const { queryByText } = render(
-    <BrowserRouter>
-      <UserInfo id={3} />
-    </BrowserRouter>
-  );
-  expect(queryByText('Luohao')).toBeNull();
-});
+  test('UserInfo did renders with full data', () => {
+    const { queryAllByText } = render(
+      <BrowserRouter>
+        <UserInfo {...defaultProps} />
+      </BrowserRouter>
+    );
+    expect(queryAllByText(defaultProps.jira_id)).not.toBeNull();
+  });
 
-test('UserInfo renders without jira_id props', () => {
-  const { queryByText } = render(
-    <BrowserRouter>
-      <UserInfo id={3} />
-    </BrowserRouter>
-  );
-  expect(queryByText('jakeluong')).toBeNull();
-});
+  test('UserInfo did renders without name', () => {
+    const { queryByText } = render(
+      <BrowserRouter>
+        <UserInfo {...defaultProps} name='' />
+      </BrowserRouter>
+    );
+    expect(queryByText(defaultProps.id.toString()).textContent).toBe(defaultProps.id.toString());
+  });
 
-test('UserInfo renders without position props', () => {
-  const { queryByText } = render(
-    <BrowserRouter>
-      <UserInfo id={3} />
-    </BrowserRouter>
-  );
-  expect(queryByText('junior')).toBeNull();
-});
+  test('UserInfo did renders without link', () => {
+    const { getByText } = render(
+      <BrowserRouter>
+        <UserInfo {...defaultProps} useLink={false} />
+      </BrowserRouter>
+    );
+    expect(getByText(defaultProps.name)).not.toBeNull();
+  });
 
-test('UserInfo did renders with correct data and link', () => {
-  const { queryByText } = render(
-    <BrowserRouter>
-      <UserInfo {...defaultProps} />
-    </BrowserRouter>
-  );
-  expect(queryByText('Luohao')).toBeTruthy();
-});
+  test('UserInfo did renders without jira_id', () => {
+    const { getByText } = render(
+      <BrowserRouter>
+        <UserInfo {...defaultProps} useLink={false} jira_id='' />
+      </BrowserRouter>
+    );
+    expect(getByText(defaultProps.name)).not.toBeNull();
+  });
 
-test('UserInfo did renders with link and no name', () => {
-  const { queryByText } = render(
-    <BrowserRouter>
-      <UserInfo {...defaultProps} name='' />
-    </BrowserRouter>
-  )
-  expect(queryByText('3')).toBeTruthy();
-});
+  test('UserInfo did renders by using id', () => {
+    const { queryAllByText } = render(
+      <BrowserRouter>
+        <UserInfo {...defaultProps} useLink={false} name='' />
+      </BrowserRouter>
+    );
+    expect(queryAllByText(defaultProps.jira_id)).not.toBeNull();
+  });
 
-test('UserInfo did renders with correct data', () => {
-  const { queryByText } = render(
-    <UserInfo {...defaultProps} useLink={false} />
-  );
-  expect(queryByText('Luohao')).toBeTruthy();
-});
-
-test('UserInfo did renders without name', () => {
-  const { queryByText } = render(
-    <UserInfo {...defaultProps} name='' useLink={false} />
-  );
-  expect(queryByText('3')).toBeTruthy();
-});
-
-test('UserInfo did renders without jira id', () => {
-  const { queryByText } = render(
-    <UserInfo {...defaultProps} jira_id='' useLink={false} />
-  );
-  expect(queryByText('Luohao')).toBeTruthy()
-});
-
-test('should render link to user detail page on click', () => {
-  const onClick = jest.fn();
-  const { getByText } = render (
-    <BrowserRouter>
-      <UserInfo {...defaultProps} onClick={onClick} />
-    </BrowserRouter>
-  );
-  expect(getByText(defaultProps.name).getAttribute('href')).toBe('/user/3');
+  test('should render link to user detail page on click', () => {
+    const { getByText } = render (
+      <BrowserRouter>
+        <UserInfo {...defaultProps}  />
+      </BrowserRouter>
+    );
+    expect(getByText(defaultProps.name).getAttribute('href')).toBe('/user/3');
+  })
 })
