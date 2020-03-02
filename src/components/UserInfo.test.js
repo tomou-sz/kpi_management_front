@@ -3,9 +3,9 @@ import { BrowserRouter } from 'react-router-dom';
 import UserInfo from './UserInfo';
 import { render, fireEvent, cleanup } from '@testing-library/react';
 
-afterEach(cleanup);
-
 describe('UserInfo did renders', () => {
+  afterEach(cleanup);
+
   const defaultProps = {
     id: 3,
     name: 'Luohao',
@@ -20,7 +20,7 @@ describe('UserInfo did renders', () => {
         <UserInfo {...defaultProps} />
       </BrowserRouter>
     );
-    expect(queryAllByText(defaultProps.jira_id)).not.toBeNull();
+    expect(queryAllByText(defaultProps.jira_id)).toBeTruthy();
   });
 
   test('UserInfo did renders without name', () => {
@@ -38,7 +38,7 @@ describe('UserInfo did renders', () => {
         <UserInfo {...defaultProps} useLink={false} />
       </BrowserRouter>
     );
-    expect(getByText(defaultProps.name)).not.toBeNull();
+    expect(getByText(defaultProps.name)).toBeTruthy();
   });
 
   test('UserInfo did renders without jira_id', () => {
@@ -47,7 +47,7 @@ describe('UserInfo did renders', () => {
         <UserInfo {...defaultProps} useLink={false} jira_id='' />
       </BrowserRouter>
     );
-    expect(getByText(defaultProps.name)).not.toBeNull();
+    expect(getByText(defaultProps.name)).toBeTruthy();
   });
 
   test('UserInfo did renders by using id', () => {
@@ -56,7 +56,7 @@ describe('UserInfo did renders', () => {
         <UserInfo {...defaultProps} useLink={false} name='' />
       </BrowserRouter>
     );
-    expect(queryAllByText(defaultProps.jira_id)).not.toBeNull();
+    expect(queryAllByText(defaultProps.jira_id)).toBeTruthy();
   });
 
   test('should render link to user detail page on click', () => {
