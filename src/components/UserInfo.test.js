@@ -1,7 +1,7 @@
 import React from 'react';
 import { BrowserRouter } from 'react-router-dom';
 import UserInfo from './UserInfo';
-import { render, fireEvent, cleanup } from '@testing-library/react';
+import { render, fireEvent, cleanup, waitForElement } from '@testing-library/react';
 
 describe('UserInfo did renders', () => {
   afterEach(cleanup);
@@ -66,5 +66,30 @@ describe('UserInfo did renders', () => {
       </BrowserRouter>
     );
     expect(getByText(defaultProps.name).getAttribute('href')).toBe('/user/3');
+  });
+
+  test('should render tooltip on hover', async () => {
+    // Fix material tooltips document.createRange is not a function
+    var cacheCreateRange = document.createRange;
+    document.createRange = () => ({
+      setStart: () => {},
+      setEnd: () => {},
+      commonAncestorContainer: {
+        nodeName: "BODY",
+        ownerDocument: document,
+      },
+    });
+
+    const { getByText } = render(
+      <BrowserRouter>
+        <UserInfo {...defaultProps} />
+      </BrowserRouter>
+    )
+    fireEvent.mouseEnter(getByText(defaultProps.name));
+    const tooltipElement = await waitForElement(() => getByText(`Frontend Member - ${defaultProps.position}`));
+    expect(tooltipElement).toBeTruthy();
+
+    // Fix material tooltips document.createRange is not a function
+    document.createRange = cacheCreateRange;
   })
 })
