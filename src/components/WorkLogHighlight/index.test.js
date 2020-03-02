@@ -55,12 +55,4 @@ describe('WorklogHighlight did renders', () => {
     )
     expect(parseInt(queryByText(total_time_spent.toString()).textContent)).toBeLessThan(8);
   });
-
-  // test('Log time is below 8 hours and has red coloring', () => {
-  //   const total_time_spent = 1;
-  //   const { queryByText } = render(
-  //     <WorkLogHighlight logtime={{ total_time_spent: total_time_spent }} />
-  //   )
-  //   expect(parseInt(queryByText(total_time_spent.toString()).textContent)).toBeLessThan(8);
-  // });
 })
