@@ -2,17 +2,13 @@ import React from 'react';
 import PropTypes from 'prop-types';
 
 const renderContent = (logtime) => {
-  if(!!logtime && logtime !== undefined) {
-    const isToday = (new Date(logtime.date)).toDateString()  === (new Date()).toDateString() ? true : false;
-    const isPastDate = (new Date(logtime.date)) < (new Date()) ? true : false;
+  const isToday = (new Date(logtime.date)).toDateString()  === (new Date()).toDateString() ? true : false;
+  const isPastDate = (new Date(logtime.date)) < (new Date()) ? true : false;
 
-    if(logtime.total_time_spent < 8 && ( isToday || isPastDate )) {
-      return <div style={{ color: 'red', fontWeight: 'bold'}}>{logtime.total_time_spent}</div>
-    } else {
-      return <div>{logtime.total_time_spent}</div>
-    }
+  if(logtime.total_time_spent < 8 && ( isToday || isPastDate )) {
+    return <div style={{ color: 'red', fontWeight: 'bold'}}>{logtime.total_time_spent}</div>
   } else {
-    return <div>0</div>
+    return <div>{logtime.total_time_spent}</div>
   }
 }
 
