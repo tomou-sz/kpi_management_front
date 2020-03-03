@@ -25,5 +25,7 @@ export function getTeam(jira_id) {
     return 'QC/QA Member';
   } else if(DefaultConfig.TEAM_INF.indexOf(jira_id) !== -1) {
     return 'Infrastructure Member';
+  } else {
+    return '';
   }
 }
