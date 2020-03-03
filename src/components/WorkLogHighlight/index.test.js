@@ -5,40 +5,25 @@ import { render, cleanup } from '@testing-library/react';
 afterEach(cleanup);
 
 describe('WorklogHighlight did renders', () => {
+  var today = new Date();
+  var dd = String(today.getDate()).padStart(2, '0');
+  var mm = String(today.getMonth() + 1).padStart(2, '0');
+  var yyyy = today.getFullYear();
+  today = mm + '/' + dd + '/' + yyyy;
+
   const defaultProps = {
     logtime: {
       total_time_spent: 0,
-      date: '2020-02-28'
+      date: today
     }
   };
 
-  test('Component did renders successfully', () => {
-    const component = jest.fn(() => {
-      const { queryByText } = render(
-        <WorkLogHighlight {...defaultProps}  />
-      )
-      const logtime = queryByText(defaultProps.logtime.total_time_spent.toString()).textContent;
-      if(logtime.length > 0 && parseInt(logtime) >= 0) {
-        return true;
-      }
-    });
-    component()
-    expect(component).toHaveReturnedTimes(1);
-  });
-
   test('Log time is below 0 hours', () => {
-    const component = jest.fn(() => {
-      const total_time_spent = -1;
-      const { queryByText } = render(
-        <WorkLogHighlight logtime={{ total_time_spent: total_time_spent }}  />
-      )
-      const logtime = parseInt(queryByText(total_time_spent.toString()).textContent);
-      if(logtime <= -1) {
-        return true;
-      }
-    });
-    component()
-    expect(component).toHaveReturnedTimes(1);
+    const total_time_spent = -1;
+    const { queryByText } = render(
+      <WorkLogHighlight logtime={{ total_time_spent: total_time_spent }}  />
+    )
+    expect(parseInt(queryByText(total_time_spent.toString()).textContent)).toBeLessThan(0);
   });
 
   test('Component did renders with default logtime', () => {
@@ -48,11 +33,12 @@ describe('WorklogHighlight did renders', () => {
     expect(parseInt(queryByText(defaultProps.logtime.total_time_spent.toString()).textContent)).toBe(0);
   });
 
-  test('Log time is below 8 hours', () => {
-    const total_time_spent = 1;
+  test('Log time is >=0 and <= 8', () => {
+    const total_time_spent = 0;
     const { queryByText } = render(
       <WorkLogHighlight logtime={{ total_time_spent: total_time_spent }} />
     )
-    expect(parseInt(queryByText(total_time_spent.toString()).textContent)).toBeLessThan(8);
+    expect(parseInt(queryByText(total_time_spent.toString()).textContent)).toBeGreaterThanOrEqual(0);
+    expect(parseInt(queryByText(total_time_spent.toString()).textContent)).toBeLessThanOrEqual(8);
   });
 })
