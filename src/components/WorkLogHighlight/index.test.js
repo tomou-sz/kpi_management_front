@@ -23,14 +23,14 @@ describe('WorklogHighlight did renders', () => {
     const { queryByText } = render(
       <WorkLogHighlight logtime={{ total_time_spent: total_time_spent }}  />
     )
-    expect(parseInt(queryByText(total_time_spent.toString()).textContent)).toBeLessThan(0);
+    expect(parseInt(queryByText(total_time_spent.toString()).textContent)).toBe(total_time_spent);
   });
 
   test('Component did renders with default logtime', () => {
     const { queryByText } = render(
       <WorkLogHighlight {...defaultProps}  />
     )
-    expect(parseInt(queryByText(defaultProps.logtime.total_time_spent.toString()).textContent)).toBe(0);
+    expect(parseInt(queryByText(defaultProps.logtime.total_time_spent.toString()).textContent)).toBe(defaultProps.logtime.total_time_spent);
   });
 
   test('Log time is >=0 and <= 8', () => {
@@ -38,7 +38,15 @@ describe('WorklogHighlight did renders', () => {
     const { queryByText } = render(
       <WorkLogHighlight logtime={{ total_time_spent: total_time_spent }} />
     )
-    expect(parseInt(queryByText(total_time_spent.toString()).textContent)).toBeGreaterThanOrEqual(0);
+    expect(parseInt(queryByText(total_time_spent.toString()).textContent)).toBeGreaterThanOrEqual(total_time_spent);
     expect(parseInt(queryByText(total_time_spent.toString()).textContent)).toBeLessThanOrEqual(8);
+  });
+
+  test('Log time is >=0 and > 8', () => {
+    const total_time_spent = 9;
+    const { queryByText } = render(
+      <WorkLogHighlight logtime={{ total_time_spent: total_time_spent }} />
+    )
+    expect(parseInt(queryByText(total_time_spent.toString()).textContent)).toBeGreaterThan(8);
   });
 })
