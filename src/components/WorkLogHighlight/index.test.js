@@ -1,20 +1,16 @@
 import React from 'react';
 import WorkLogHighlight from './index';
 import { render, cleanup } from '@testing-library/react';
+import { dateFormat } from '../../utils/TimeFormat';
+
 
 describe('WorklogHighlight did renders', () => {
   afterEach(cleanup);
 
-  var today = new Date();
-  var dd = String(today.getDate()).padStart(2, '0');
-  var mm = String(today.getMonth() + 1).padStart(2, '0');
-  var yyyy = today.getFullYear();
-  today = mm + '/' + dd + '/' + yyyy;
-
   const defaultProps = {
     logtime: {
       total_time_spent: 0,
-      date: today
+      date: dateFormat(new Date(), '/')
     }
   };
 
