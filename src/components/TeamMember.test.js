@@ -4,16 +4,6 @@ import { render, cleanup } from '@testing-library/react';
 
 describe('TeamMember did renders', () => {
   afterEach(cleanup);
-  test('Team name is of string type', () => {
-    const component = jest.fn(() => {
-      const teamName = getTeam('jakeluong');
-      if(teamName.length > 0 || typeof teamName === 'string') {
-        return true;
-      }
-    });
-    component();
-    expect(component).toHaveReturnedTimes(1);
-  });
 
   test('FE team did renders successfully', () => {
     const { queryByText } = render(
@@ -66,20 +56,5 @@ describe('TeamMember did renders', () => {
     );
     const teamName = getTeam('');
     expect(teamName).toBe('');
-  });
-
-  test('Component did renders successfully', () => {
-    const component = jest.fn(() => {
-      const { queryByText } = render(
-        <TeamMember jira_id='jakeluong'  />
-      );
-      const teamName = getTeam('jakeluong');
-      const teamMember = queryByText(teamName).textContent;
-      if(teamMember.length > 0) {
-        return true;
-      }
-    });
-    component();
-    expect(component).toHaveReturnedTimes(1);
   });
 })
