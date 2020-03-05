@@ -4,7 +4,6 @@ import Select from '@material-ui/core/Select';
 import DefaultConfig from '../utils/DefaultConfig';
 
 export default function SelectTeam({...props}) {
-  console.log(DefaultConfig.TEAM_INF);
   if(DefaultConfig.TEAM_LIST.length === 0) {
     return 'Loading';
   }

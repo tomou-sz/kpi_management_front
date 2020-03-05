@@ -1,28 +1,39 @@
 import React from 'react';
 import SelectTeam from './SelectTeam';
 import { render, fireEvent, cleanup } from '@testing-library/react';
-// import DefaultConfig from '../utils/DefaultConfig';
+import DefaultConfig from '../utils/DefaultConfig';
+jest.mock('../utils/DefaultConfig');
+const defaultTeamList = {
+  TEAM_LIST: [
+    {title: 'Frontend', name: 'TEAM_FE'},
+    {title: 'Frontend - Design', name: 'TEAM_FE_DESIGN'},
+    {title: 'Backend', name: 'TEAM_BE'},
+    {title: 'Infrastructure', name: 'TEAM_INF'},
+    {title: 'QC/QA', name: 'TEAM_QC'},
+  ],
+};
 
 describe('SelectTeam component test', () => {
-  afterEach(cleanup);
+  beforeEach(() => {
+    DefaultConfig.TEAM_LIST = defaultTeamList.TEAM_LIST;
+  });
+
+  afterEach(() =>{
+    jest.resetModules();
+    cleanup()
+  });
 
   const defaultProps = {
     value: 'TEAM_FE',
     text: 'Frontend'
   };
 
-  beforeEach(() => {
-    jest.resetModules();
-  });
-
   test('should renders loading when team list is empty', ()=> {
-    jest.mock('../utils/DefaultConfig');
-    // const teamListModules = require('../utils/DefaultConfig');
+    DefaultConfig.TEAM_LIST = []
     const { queryByText } = render(
       <SelectTeam {...defaultProps} />
     )
-    // console.log(teamListModules);
-    expect(queryByText(defaultProps.text)).toBeTruthy();
+    expect(queryByText('Loading').textContent).toBe('Loading');
   })
 
   test('component did renders successfully', () => {
