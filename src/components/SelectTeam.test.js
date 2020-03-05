@@ -32,7 +32,8 @@ describe('SelectTeam component test', () => {
     const { queryByText } = render(
       <SelectTeam {...defaultProps} />
     );
-    expect(queryByText('Loading').textContent).toBe('Loading');
+    expect(queryByText('Loading').textContent).toBeTruthy();
+    expect(queryByText(defaultProps.text)).toBeFalsy();
   });
 
   test('component did renders successfully', () => {
@@ -60,6 +61,7 @@ describe('SelectTeam component test', () => {
     const onChange = jest.fn();
     const { container } = render(<SelectTeam {...defaultProps} onChange={onChange} />);
     const selectInput = container.querySelector('select');
+    expect(selectInput.firstElementChild.text).toBeTruthy();
     fireEvent.change(selectInput.firstElementChild, { target: { value: 'changed' } });
     expect(selectInput.value).toBe('changed');
   });
